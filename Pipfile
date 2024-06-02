@@ -11,8 +11,10 @@ opencv-python = "*"
 pycocotools = "*"
 matplotlib = "*"
 numpy = "*"
+lvis = "*"
 
 [dev-packages]
+ipykernel = "*"
 
 [requires]
 python_version = "3.12"
