@@ -11,6 +11,7 @@ opencv-python = "*"
 pycocotools = "*"
 matplotlib = "*"
 numpy = "*"
+lvis = "*"
 
 [dev-packages]
 ipykernel = "*"
