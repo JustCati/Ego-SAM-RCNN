@@ -219,5 +219,8 @@ cython_debug/
 
 
 # Own
+data
 data/*
 !download_EgoObjects.sh
+ckpts
+ckpts/*
