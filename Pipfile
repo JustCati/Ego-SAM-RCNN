@@ -10,8 +10,9 @@ torchmetrics = "*"
 opencv-python = "*"
 pycocotools = "*"
 matplotlib = "*"
-numpy = "*"
 lvis = "*"
+numpy = "==1.26.4"
+timm = "*"
 
 [dev-packages]
 ipykernel = "*"
