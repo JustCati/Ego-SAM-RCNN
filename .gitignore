@@ -219,5 +219,5 @@ data/*
 !download_EgoObjects.sh
 ckpts
 ckpts/*
-sam-models/*
+sam-checkpoints/*
 *.ttf
