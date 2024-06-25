@@ -35,3 +35,8 @@ def fix_random_seed(seed):
     return rng_generator
 
 
+def worker_reset_seed(worker_id):
+    seed = torch.initial_seed() % 2 ** 31
+    np.random.seed(seed)
+    random.seed(seed)
+    os.environ["PYTHONHASHSEED"] = str(seed)
