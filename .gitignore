@@ -27,11 +27,6 @@ Temporary Items
 .apdisk
 
 .vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
-!.vscode/*.code-snippets
 
 # Local History for Visual Studio Code
 .history/
@@ -219,5 +214,10 @@ cython_debug/
 
 
 # Own
+data
 data/*
 !download_EgoObjects.sh
+ckpts
+ckpts/*
+sam-checkpoints/*
+*.ttf
