@@ -1,10 +1,10 @@
 import json
 
 
-def append_categories(path_1, path_2, outPath):
-    with open(path_1, "r") as f:
+def append_categories(split_path, metadata_path, outPath):
+    with open(split_path, "r") as f:
         eval = json.load(f)
-    with open(path_2, "r") as f:
+    with open(metadata_path, "r") as f:
         metadata = json.load(f)
 
     eval["categories"] = metadata["categories"]
