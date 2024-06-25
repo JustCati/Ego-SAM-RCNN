@@ -12,3 +12,10 @@ def append_categories(path_1, path_2, outPath):
         json.dump(eval, f)
 
 
+def swap_categories_ids(json_path):
+    with open(json_path, "r") as f:
+        data = json.load(f)
+    for i in range(len(data["annotations"])):
+        data["annotations"][i]["category_id"] = data["annotations"][i]["_category_id"]
+    with open(json_path, "w") as f:
+        json.dump(data, f)
