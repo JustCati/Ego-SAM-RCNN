@@ -4,6 +4,7 @@ import argparse
 import datetime
 
 from src.utils.utils import getDevice, fix_random_seed
+from src.dataset.lvis_utils import append_categories, swap_categories_ids, fix_annotations
 
 
 
@@ -36,7 +37,19 @@ def main(args):
     if not os.path.exists(modelOutputPath) and not args.sample:
         raise ValueError(f"Path {modelOutputPath} does not exist")
 
-    
+
+    # Check if dataset annotations json file is already preprocessed
+    metadataPath = os.path.join(path, "ego_objects_metadata.json")
+
+    for split in ["train", "eval"]:
+        if not os.path.exists(os.path.join(path, "ego_objects_{split}_fixed.json")):
+            splitPath = os.path.join(path, "ego_objects_" + split + ".json")
+            fix_annotations(splitPath, metadataPath, split)
+
+    # Check if dataset masks are present
+    # TODO: Convert to COCO and then create masks with SAM so that mask are directly saved in right format
+
+
 
 
 
