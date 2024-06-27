@@ -41,7 +41,7 @@ def main(args):
     # Check if dataset annotations json file is already preprocessed
     metadataPath = os.path.join(path, "ego_objects_metadata.json")
 
-    for split in ["train", "eval"]:
+        if not os.path.exists(os.path.join(path, f"ego_objects_{split}_fixed.json")):
         if not os.path.exists(os.path.join(path, "ego_objects_{split}_fixed.json")):
             splitPath = os.path.join(path, "ego_objects_" + split + ".json")
             fix_annotations(splitPath, metadataPath, split)
