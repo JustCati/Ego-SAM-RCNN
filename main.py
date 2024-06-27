@@ -3,6 +3,7 @@ import time
 import argparse
 import datetime
 
+from src.dataset.coco import convertToCoco
 from src.utils.utils import getDevice, fix_random_seed
 from src.dataset.lvis_utils import append_categories, swap_categories_ids, fix_annotations
 
@@ -40,11 +41,21 @@ def main(args):
 
     # Check if dataset annotations json file is already preprocessed
     metadataPath = os.path.join(path, "ego_objects_metadata.json")
-
+    for split in ["eval", "train"]:
         if not os.path.exists(os.path.join(path, f"ego_objects_{split}_fixed.json")):
-        if not os.path.exists(os.path.join(path, "ego_objects_{split}_fixed.json")):
+            print("Fixing annotations for split: ", split)
             splitPath = os.path.join(path, "ego_objects_" + split + ".json")
             fix_annotations(splitPath, metadataPath, split)
+
+        # Convert to COCO if necessary
+        if not os.path.exists(os.path.join(path, "COCO")):
+            os.makedirs(os.path.join(path, "COCO"))
+        if not os.path.exists(os.path.join(path, "COCO", f"ego_objects_{split}.json")):
+            print("Converting to COCO format for split: ", split)
+            src_json = os.path.join(path, f"ego_objects_{split}_fixed.json")
+            output_json = os.path.join(path, "COCO", f"ego_objects_{split}_nomask.json")
+            convertToCoco(src_json, output_json)
+
 
     # Check if dataset masks are present
     # TODO: Convert to COCO and then create masks with SAM so that mask are directly saved in right format
