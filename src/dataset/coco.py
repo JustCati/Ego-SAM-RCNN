@@ -6,7 +6,7 @@ from lvis import LVIS
 
 
 # Convert to COCO format
-def convertToCoco(src_json_path, dst_path):
+def convert_to_coco(src_json_path, dst_path):
     lvis = LVIS(src_json_path)    
     coco = {
         "images": [],

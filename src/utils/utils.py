@@ -8,7 +8,7 @@ import torch.backends.cudnn as cudnn
 
 
 
-def getDevice():
+def get_device():
     device = None
     if torch.cuda.is_available():
         device = torch.device('cuda')
