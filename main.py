@@ -52,7 +52,7 @@ def main(args):
         # Convert to COCO if necessary
         if not os.path.exists(os.path.join(path, "COCO")):
             os.makedirs(os.path.join(path, "COCO"))
-        if not os.path.exists(os.path.join(path, "COCO", f"ego_objects_{split}.json")):
+        if not os.path.exists(os.path.join(path, "COCO", f"ego_objects_{split}_nomask.json")):
             print("Converting to COCO format for split: ", split)
             src_json = os.path.join(annoPath, f"ego_objects_{split}_fixed.json")
             output_json = os.path.join(path, "COCO", f"ego_objects_{split}_nomask.json")
