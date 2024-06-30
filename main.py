@@ -1,5 +1,6 @@
 import os
 import time
+import json
 import argparse
 import datetime
 
@@ -52,16 +53,21 @@ def main(args):
         # Convert to COCO if necessary
         if not os.path.exists(os.path.join(path, "COCO")):
             os.makedirs(os.path.join(path, "COCO"))
-        if not os.path.exists(os.path.join(path, "COCO", f"ego_objects_{split}_nomask.json")):
+
+        cocoPath = os.path.join(path, "COCO", f"ego_objects_coco_{split}.json")
+        if not os.path.exists(cocoPath):
             print("Converting to COCO format for split: ", split)
             src_json = os.path.join(annoPath, f"ego_objects_{split}_fixed.json")
-            output_json = os.path.join(path, "COCO", f"ego_objects_{split}_nomask.json")
-            convertToCoco(src_json, output_json)
+            output_json = cocoPath
+            convert_to_coco(src_json, output_json)
 
+        with open(cocoPath, "r") as f:
+            coco = json.load(f)
+        if not "segmentation" in coco["annotations"][0].keys():
+            sam_path = os.path.join(os.getcwd(), "sam-checkpoints", "sam_vit_h.pth")
 
-    # Check if dataset masks are present
-    # TODO: Convert to COCO and then create masks with SAM so that mask are directly saved in right format
-
+            print("Genereting masks for split: ", split)
+            generate_masks(cocoPath, img_path, sam_path)
 
 
 
