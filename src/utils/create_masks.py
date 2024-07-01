@@ -5,6 +5,7 @@ import cv2 as cv
 import numpy as np
 from tqdm import tqdm
 from pycocotools.coco import COCO
+from torchvision.ops.boxes import box_convert
 sys.path.append(os.path.join(os.getcwd(), "sam", "segment_anything"))
 
 import torch
@@ -60,8 +61,8 @@ def generate_masks(cocoPath, imgPath, sam_path = None):
         anns_ids = coco.getAnnIds(imgIds=img_id)
         for ann in coco.loadAnns(anns_ids):
             boxes.append(ann["bbox"])
+        boxes = box_convert(torch.tensor(boxes), in_fmt="xywh", out_fmt="xyxy")
         boxes = torch.tensor(boxes).type(torch.int64).to(predictor.device)
-        predictor.transform.apply_boxes_torch(boxes, img_shape)
 
         predictor.set_image(img)
         masks, *_ = predictor.predict_torch(
