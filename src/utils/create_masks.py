@@ -71,6 +71,7 @@ def generate_masks(cocoPath, imgPath, sam_path = None):
             boxes=boxes,
             multimask_output=False
             )
+        masks = masks.reshape(-1, *img_shape)
 
         for i, mask in enumerate(masks):
             mask = mask.cpu().numpy().astype(np.uint8)
