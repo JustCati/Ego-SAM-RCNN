@@ -57,6 +57,7 @@ def generate_masks(cocoPath, imgPath, sam_path = None):
         img = cv.imread(img_path)
         img = cv.cvtColor(img, cv.COLOR_BGR2RGB)
 
+        # Load bboxes and convert them from xywh to xyxy
         boxes = []
         anns_ids = coco.getAnnIds(imgIds=img_id)
         for ann in coco.loadAnns(anns_ids):
@@ -64,6 +65,7 @@ def generate_masks(cocoPath, imgPath, sam_path = None):
         boxes = box_convert(torch.tensor(boxes), in_fmt="xywh", out_fmt="xyxy")
         boxes = torch.tensor(boxes).type(torch.int64).to(predictor.device)
 
+        # Load and convert data for SAM
         sam_boxes = predictor.transform.apply_boxes_torch(boxes, img_shape)
         predictor.set_image(img)
         masks, *_ = predictor.predict_torch(
@@ -74,6 +76,7 @@ def generate_masks(cocoPath, imgPath, sam_path = None):
             )
         masks = masks.reshape(-1, *img_shape)
 
+        # Convert binary mask to RLE and update the COCO JSON
         for i, mask in enumerate(masks):
             mask = mask.cpu().numpy()
             rle = binary_mask_to_rle_np(mask)
