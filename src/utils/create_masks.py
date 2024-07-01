@@ -64,17 +64,18 @@ def generate_masks(cocoPath, imgPath, sam_path = None):
         boxes = box_convert(torch.tensor(boxes), in_fmt="xywh", out_fmt="xyxy")
         boxes = torch.tensor(boxes).type(torch.int64).to(predictor.device)
 
+        sam_boxes = predictor.transform.apply_boxes_torch(boxes, img_shape)
         predictor.set_image(img)
         masks, *_ = predictor.predict_torch(
             point_coords=None,
             point_labels=None,
-            boxes=boxes,
+            boxes=sam_boxes,
             multimask_output=False
             )
         masks = masks.reshape(-1, *img_shape)
 
         for i, mask in enumerate(masks):
-            mask = mask.cpu().numpy().astype(np.uint8)
+            mask = mask.cpu().numpy()
             rle = binary_mask_to_rle_np(mask)
 
             ann_idx = annMap[anns_ids[i]]
