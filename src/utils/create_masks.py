@@ -37,7 +37,7 @@ def generate_masks(cocoPath, imgPath, sam_path = None):
     if not os.path.exists(cocoPath):
         raise ValueError(f"Path {cocoPath} does not exist")
 
-    sam = sam_model_registry["vit_h"](checkpoint=os.path.join(os.getcwd(), "sam-checkpoints", "sam_vit_h.pth"))
+    sam = sam_model_registry["vit_h"](checkpoint=sam_path)
     sam.to(torch.device("cuda"))
     predictor = SamPredictor(sam)
 
