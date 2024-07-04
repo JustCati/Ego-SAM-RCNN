@@ -42,6 +42,7 @@ def main(args):
 
 
     #* Check if dataset annotations json file is already preprocessed
+    device = get_device()
     annoPath = os.path.join(path, "annotations")
     metadataPath = os.path.join(annoPath, "ego_objects_metadata.json")
 
@@ -68,7 +69,7 @@ def main(args):
             sam_path = os.path.join(os.getcwd(), "sam-checkpoints", "sam_vit_h.pth")
 
             print("Genereting masks for split: ", split)
-            generate_masks(cocoPath, img_path, sam_path)
+            generate_masks(cocoPath, img_path, sam_path, device = device)
 
 
 

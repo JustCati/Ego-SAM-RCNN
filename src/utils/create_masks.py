@@ -34,12 +34,12 @@ def binary_mask_to_rle_np(binary_mask):
 
 
 
-def generate_masks(cocoPath, imgPath, sam_path = None):
+def generate_masks(cocoPath, imgPath, sam_path = None, device = "cuda"):
     if not os.path.exists(cocoPath):
         raise ValueError(f"Path {cocoPath} does not exist")
 
     sam = sam_model_registry["vit_h"](checkpoint=sam_path)
-    sam.to(torch.device("cuda"))
+    sam.to(device)
     predictor = SamPredictor(sam)
 
     coco = COCO(cocoPath)
