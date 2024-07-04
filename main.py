@@ -7,7 +7,14 @@ import datetime
 from utils.lvis_utils import fix_annotations
 from src.dataset.coco import convert_to_coco
 from dataset.create_masks import generate_masks
-from src.utils.utils import get_device, fix_random_seed
+from src.utils.utils import get_device, fix_random_seed, worker_reset_seed
+
+from src.dataset.dataloader import CocoDataset
+
+import torch
+from torch.utils import data
+from torchvision.transforms import v2 as T
+from src.transform.transform import GaussianBlur, GaussianNoise
 
 
 
@@ -70,8 +77,38 @@ def main(args):
 
             print("Genereting masks for split: ", split)
             generate_masks(cocoPath, img_path, sam_path, device = device)
+    
+    valCocoPath = os.path.join(path, "COCO", "ego_objects_coco_eval.json")
+    trainCocoPath = os.path.join(path, "COCO", "ego_objects_coco_train.json")
 
 
+    #* --------------- Create Dataset -----------------
+
+    if args.train or args.sample or args.demo or args.eval or args.resume != "":
+        SEED = 1234567891
+        rng_generator = fix_random_seed(SEED)
+
+
+        val = CocoDataset(img_path, valCocoPath)
+        train = CocoDataset(img_path, trainCocoPath, transforms = transform)
+
+        BATCH_SIZE = 3
+        trainDataloader = data.DataLoader(train, 
+                                        batch_size = BATCH_SIZE, 
+                                        num_workers = 8, 
+                                        pin_memory = True, 
+                                        shuffle = True,
+                                        generator=rng_generator,
+                                        worker_init_fn=worker_reset_seed,
+                                        collate_fn = lambda x: tuple(zip(*x)))
+        valDataloader = data.DataLoader(val, 
+                                        batch_size = 1, 
+                                        num_workers = 8, 
+                                        pin_memory = True, 
+                                        shuffle = False, 
+                                        collate_fn = lambda x: tuple(zip(*x)))
+
+    #* ----------------------------------------------------
 
 
 
