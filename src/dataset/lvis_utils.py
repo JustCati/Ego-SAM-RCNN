@@ -3,13 +3,13 @@ import json
 
 def append_categories(split_path, metadata_path, outPath):
     with open(split_path, "r") as f:
-        eval = json.load(f)
+        data = json.load(f)
     with open(metadata_path, "r") as f:
         metadata = json.load(f)
 
-    eval["categories"] = metadata["categories"]
+    data["categories"] = metadata["categories"]
     with open(outPath, "w") as f:
-        json.dump(eval, f)
+        json.dump(data, f)
 
 
 def swap_categories_ids(json_path):
