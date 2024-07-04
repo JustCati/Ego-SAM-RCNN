@@ -41,26 +41,27 @@ def main(args):
         raise ValueError(f"Path {modelOutputPath} does not exist")
 
 
-    # Check if dataset annotations json file is already preprocessed
+    #* Check if dataset annotations json file is already preprocessed
     annoPath = os.path.join(path, "annotations")
     metadataPath = os.path.join(annoPath, "ego_objects_metadata.json")
+
     for split in ["eval", "train"]:
         if not os.path.exists(os.path.join(annoPath, f"ego_objects_{split}_fixed.json")):
             print("Fixing annotations for split: ", split)
             splitPath = os.path.join(annoPath, "ego_objects_" + split + ".json")
             fix_annotations(splitPath, metadataPath, split)
 
-        # Convert to COCO if necessary
+        #* Convert to COCO if necessary
+        cocoPath = os.path.join(path, "COCO", f"ego_objects_coco_{split}.json")
+
         if not os.path.exists(os.path.join(path, "COCO")):
             os.makedirs(os.path.join(path, "COCO"))
-
-        cocoPath = os.path.join(path, "COCO", f"ego_objects_coco_{split}.json")
         if not os.path.exists(cocoPath):
             print("Converting to COCO format for split: ", split)
             src_json = os.path.join(annoPath, f"ego_objects_{split}_fixed.json")
-            output_json = cocoPath
-            convert_to_coco(src_json, output_json)
+            convert_to_coco(src_json, cocoPath)
 
+        #* Generate masks if necessary
         with open(cocoPath, "r") as f:
             coco = json.load(f)
         if not "segmentation" in coco["annotations"][0].keys():
