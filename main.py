@@ -88,6 +88,15 @@ def main(args):
         SEED = 1234567891
         rng_generator = fix_random_seed(SEED)
 
+        #! Uncomment Gaussian Noise but performance will suffer a lot
+        transform = T.Compose([
+            T.RandomHorizontalFlip(0.5),
+            T.RandomVerticalFlip(0.5),
+            T.RandomRotation(degrees = (0, 180)),
+            T.RandomAffine(degrees=(30, 70), translate=(0.1, 0.3), scale=(0.5, 0.75)),
+            GaussianBlur(0.5, (5, 9), (0.1, 5)),
+            # GaussianNoise(p = 0.5, noise_p = 0.07, mean = 0, sigma = 5),
+        ])
 
         val = CocoDataset(img_path, valCocoPath)
         train = CocoDataset(img_path, trainCocoPath, transforms = transform)
