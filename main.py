@@ -4,10 +4,10 @@ import json
 import argparse
 import datetime
 
+from utils.lvis_utils import fix_annotations
 from src.dataset.coco import convert_to_coco
 from src.utils.create_masks import generate_masks
 from src.utils.utils import get_device, fix_random_seed
-from utils.lvis_utils import append_categories, swap_categories_ids, fix_annotations
 
 
 
