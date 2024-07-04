@@ -4,7 +4,7 @@ from torchvision.transforms import v2 as T
 
 
 
-class GaussianBlur(object):
+class RandomGaussianBlur(object):
     def __init__(self, p = 0.5, kernel_size = 5, sigma = 1):
         self.p = p
         self.kernel_size = kernel_size
