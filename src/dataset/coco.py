@@ -1,6 +1,4 @@
-import os
 import json
-import cv2 as cv
 from lvis import LVIS
 
 
