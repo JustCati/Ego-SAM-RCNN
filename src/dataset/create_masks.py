@@ -87,5 +87,5 @@ def generate_masks(cocoPath, imgPath, sam_path = None, device = "cuda"):
                 "size": rle["size"]
             }
 
-    with open(cocoPath, "w") as f:
+    with open(cocoPath.replace("coco", "coco_all"), "w") as f:
         json.dump(cocoJSON, f)

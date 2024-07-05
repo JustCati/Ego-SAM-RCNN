@@ -70,16 +70,13 @@ def main(args):
             convert_to_coco(src_json, cocoPath)
 
         #* Generate masks if necessary
-        with open(cocoPath, "r") as f:
-            coco = json.load(f)
-        if not "segmentation" in coco["annotations"][0].keys():
+        if not os.path.exists(cocoPath.replace("coco", "coco_all")):
             sam_path = os.path.join(os.getcwd(), "sam-checkpoints", "sam_vit_h.pth")
-
             print("Genereting masks for split: ", split)
             generate_masks(cocoPath, img_path, sam_path, device = device)
-    
-    valCocoPath = os.path.join(path, "COCO", "ego_objects_coco_eval.json")
-    trainCocoPath = os.path.join(path, "COCO", "ego_objects_coco_train.json")
+
+    valCocoPath = os.path.join(path, "COCO", "ego_objects_coco_all_eval.json")
+    trainCocoPath = os.path.join(path, "COCO", "ego_objects_coco_all_train.json")
 
 
     #* --------------- Create Dataset -----------------
