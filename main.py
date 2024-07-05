@@ -108,6 +108,9 @@ def main(args):
                                         shuffle = False, 
                                         collate_fn = lambda x: tuple(zip(*x)))
 
+    if args.sample:
+        plotSample(val, metadataPath)
+
     #* ----------------------------------------------------
 
 
