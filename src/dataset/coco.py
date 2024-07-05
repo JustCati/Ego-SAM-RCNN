@@ -27,8 +27,6 @@ def append_metadata(json_path, metadata_json_path):
 
 # Convert to COCO format
 def convert_to_coco(src_json_path, metadata_json_path, dst_path):
-    with open(metadata_json_path, "r") as f:
-        lvis_metadata = json.load(f)
 
     # Copy _category_id in category_id for each annotation
     print("Swapping categories ids...")
