@@ -4,8 +4,11 @@ from lvis import LVIS
 
 
 # Convert to COCO format
-def convert_to_coco(src_json_path, dst_path):
-    lvis = LVIS(src_json_path)    
+def convert_to_coco(src_json_path, metadata_json_path, dst_path):
+    with open(metadata_json_path, "r") as f:
+        lvis_metadata = json.load(f)
+
+    lvis = LVIS(src_json_path)
     coco = {
         "images": [],
         "annotations": [],
@@ -13,11 +16,7 @@ def convert_to_coco(src_json_path, dst_path):
     }
 
     # Copy categories
-    for cat in lvis.load_cats(None):
-        coco["categories"].append({
-            "id": cat["id"],
-            "name": cat["name"]
-        })
+    coco["categories"] = lvis_metadata["categories"]
     print("Categories: ", len(coco["categories"]))
     
     # Copy annotations
