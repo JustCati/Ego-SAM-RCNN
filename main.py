@@ -4,9 +4,9 @@ import json
 import argparse
 import datetime
 
-from utils.lvis_utils import fix_annotations
 from src.dataset.coco import convert_to_coco
-from dataset.create_masks import generate_masks
+from src.utils.lvis_utils import fix_annotations
+from src.dataset.create_masks import generate_masks
 from src.utils.utils import get_device, fix_random_seed, worker_reset_seed
 
 from src.dataset.dataloader import CocoDataset
@@ -14,7 +14,7 @@ from src.dataset.dataloader import CocoDataset
 import torch
 from torch.utils import data
 from torchvision.transforms import v2 as T
-from src.transform.transform import GaussianBlur, GaussianNoise
+from src.transform.transform import RandomGaussianBlur, GaussianNoise
 
 
 
@@ -67,7 +67,7 @@ def main(args):
         if not os.path.exists(cocoPath):
             print("Converting to COCO format for split: ", split)
             src_json = os.path.join(annoPath, f"ego_objects_{split}_fixed.json")
-            convert_to_coco(src_json, cocoPath)
+            convert_to_coco(src_json, metadataPath, cocoPath)
 
         #* Generate masks if necessary
         if not os.path.exists(cocoPath.replace("coco", "coco_all")):
@@ -77,7 +77,6 @@ def main(args):
 
     valCocoPath = os.path.join(path, "COCO", "ego_objects_coco_all_eval.json")
     trainCocoPath = os.path.join(path, "COCO", "ego_objects_coco_all_train.json")
-
 
     #* --------------- Create Dataset -----------------
 

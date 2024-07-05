@@ -1,17 +1,6 @@
 import json
 
 
-def append_categories(split_path, metadata_path, outPath):
-    with open(split_path, "r") as f:
-        data = json.load(f)
-    with open(metadata_path, "r") as f:
-        metadata = json.load(f)
-
-    data["categories"] = metadata["categories"]
-    with open(outPath, "w") as f:
-        json.dump(data, f)
-
-
 def swap_categories_ids(json_path):
     with open(json_path, "r") as f:
         data = json.load(f)
@@ -23,5 +12,4 @@ def swap_categories_ids(json_path):
 
 def fix_annotations(split_path, metadata_path, split="train"):
     outputPath = split_path.replace(".json", "_fixed.json")
-    append_categories(split_path, metadata_path, outputPath)
     swap_categories_ids(outputPath)
