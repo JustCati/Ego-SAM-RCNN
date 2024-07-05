@@ -5,10 +5,10 @@ import argparse
 import datetime
 
 from src.dataset.coco import convert_to_coco
-from src.utils.lvis_utils import fix_annotations
 from src.dataset.create_masks import generate_masks
 from src.utils.utils import get_device, fix_random_seed, worker_reset_seed
 
+from src.graphs.graphs import plotSample
 from src.dataset.dataloader import CocoDataset
 
 import torch
@@ -54,19 +54,14 @@ def main(args):
     metadataPath = os.path.join(annoPath, "ego_objects_metadata.json")
 
     for split in ["eval", "train"]:
-        if not os.path.exists(os.path.join(annoPath, f"ego_objects_{split}_fixed.json")):
-            print("Fixing annotations for split: ", split)
-            splitPath = os.path.join(annoPath, "ego_objects_" + split + ".json")
-            fix_annotations(splitPath, metadataPath, split)
-
         #* Convert to COCO if necessary
+        src_json = os.path.join(annoPath, f"ego_objects_{split}.json")
         cocoPath = os.path.join(path, "COCO", f"ego_objects_coco_{split}.json")
 
         if not os.path.exists(os.path.join(path, "COCO")):
             os.makedirs(os.path.join(path, "COCO"))
         if not os.path.exists(cocoPath):
             print("Converting to COCO format for split: ", split)
-            src_json = os.path.join(annoPath, f"ego_objects_{split}_fixed.json")
             convert_to_coco(src_json, metadataPath, cocoPath)
 
         #* Generate masks if necessary
