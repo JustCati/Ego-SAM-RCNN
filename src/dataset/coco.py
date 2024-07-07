@@ -51,7 +51,7 @@ def convert_to_coco(src_json_path, metadata_json_path, dst_path):
             "name": cat["name"]
         })
     print("Categories: ", len(coco["categories"]))
-    
+
     # Copy annotations
     for ann in lvis.load_anns(None):
         coco["annotations"].append({
@@ -79,3 +79,5 @@ def convert_to_coco(src_json_path, metadata_json_path, dst_path):
     os.remove(new_path)
     with open(dst_path, "w") as f:
         json.dump(coco, f)
+
+    return len(coco["categories"])
