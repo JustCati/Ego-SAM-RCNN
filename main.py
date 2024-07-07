@@ -59,7 +59,6 @@ def main(args):
     annoPath = os.path.join(path, "annotations")
     metadataPath = os.path.join(annoPath, "ego_objects_metadata.json")
 
-    num_classes = 0
     for split in ["eval", "train"]:
         #* Convert to COCO if necessary
         src_json = os.path.join(annoPath, f"ego_objects_{split}.json")
@@ -69,7 +68,7 @@ def main(args):
             os.makedirs(os.path.join(path, "COCO"))
         if not os.path.exists(cocoPath):
             print("Converting to COCO format for split: ", split)
-            num_classes = convert_to_coco(src_json, metadataPath, cocoPath)
+            convert_to_coco(src_json, metadataPath, cocoPath)
 
         #* Generate masks if necessary
         if not os.path.exists(cocoPath.replace("coco", "coco_all")):
@@ -128,6 +127,7 @@ def main(args):
         EPOCHS = args.epochs + 1 if args.epochs > 0 else 10
         tb_writer = SummaryWriter(os.path.join(modelOutputPath, "logs"))
         
+        num_classes = len(val)
         thresholds = torch.arange(0.5, 0.95, 0.05).tolist()
         evaluator = Evaluator(bbox_metric = "map", segm_metric = "map", thresholds=thresholds)
 
