@@ -6,21 +6,17 @@ from torchmetrics.detection.mean_ap import MeanAveragePrecision as map
 
 class Evaluator():
     def __init__(self, 
-                 num_classes: int,
                  bbox_metric: str = "map", 
                  segm_metric: str = "map", 
                  thresholds: list = torch.arange(0.5, 0.95, 0.05).tolist()):
-        self.num_classes = num_classes
         self.bbox_metric = bbox_metric
         self.segm_metric = segm_metric
         self.thresholds = thresholds
 
-        self.map_bbox = map(num_classes = self.num_classes, 
-                            iou_thresholds = self.thresholds,
+        self.map_bbox = map(iou_thresholds = self.thresholds,
                             box_format="xyxy",
                             iou_type="bbox")
-        self.segm_mask = map(num_classes = self.num_classes, 
-                            iou_thresholds = self.thresholds,
+        self.segm_mask = map(iou_thresholds = self.thresholds,
                             iou_type="mask")
 
 
