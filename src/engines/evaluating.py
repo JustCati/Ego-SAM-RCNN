@@ -9,18 +9,20 @@ def evaluate_one_epoch(model, loader, evaluator, tb_writer: SummaryWriter = None
     device = model.device
 
     with torch.no_grad():
-        pbar = tqdm(loader, desc=f"Epoch {epoch}")
+        preds, targt = [], []
+        pbar = tqdm(loader, desc=f"Validating epoch {epoch}")
         for _, target in enumerate(pbar, start=1):
             images, targets = target
 
             #* --------------- Forward Pass ----------------
             images = list([image.to(device) for image in images])
-            targets = [{k: v.to(device) for k, v in elem.items()} for elem in targets]
             pred = model(images)
 
-            #* --------------- Compute mAP ----------------
-            img_size = (images[0].shape[-1], images[0].shape[-2])
-            bbox_map, segm_map = evaluator.compute_map(pred, targets, img_size)
+            preds.extend([{k: v.to("cpu") for k, v in elem.items()} for elem in pred])
+            targt.extend(targets)
+
+        #* --------------- Compute mAP ----------------
+        bbox_map, segm_map = evaluator.compute_map(preds, targt)
 
         #* --------------- Log mAP ----------------
         if tb_writer is not None:
