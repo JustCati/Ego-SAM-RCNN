@@ -15,6 +15,7 @@ numpy = "==1.26.4"
 timm = "*"
 tqdm = "*"
 tensorboard = "*"
+faster-coco-eval = "*"
 
 [dev-packages]
 ipykernel = "*"
