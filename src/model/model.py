@@ -9,6 +9,7 @@ from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 
 class MaskRCNN():
     def __init__(self, num_classes, pretrained = True, weights = "DEFAULT", backbone_weights = "DEFAULT"):
+        self.device = None
         if pretrained:
             self.model = maskrcnn_resnet50_fpn_v2(weights = weights, backbone_weights = backbone_weights)
         else:
@@ -29,7 +30,20 @@ class MaskRCNN():
             num_classes = num_classes
         )
 
+    def state_dict(self):
+        return self.model.state_dict()
+
+    def load_state_dict(self, state_dict):
+        self.model.load_state_dict(state_dict)
+
+    def train(self):
+        self.model.train()
+
+    def eval(self):
+        self.model.eval()
+
     def to(self, device):
+        self.device = device
         self.model.to(device)
 
     def parameters(self):
