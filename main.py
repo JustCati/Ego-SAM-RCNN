@@ -3,7 +3,7 @@ import time
 import argparse
 import datetime
 
-from src.model import MaskRCNN
+from src.model.model import MaskRCNN
 from src.utils.checkpointer import Checkpointer
 
 from src.dataset.coco import convert_to_coco
