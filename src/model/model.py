@@ -1,3 +1,4 @@
+import torch.nn as nn
 from torchvision.ops import nms
 
 from torchvision.models.detection import maskrcnn_resnet50_fpn_v2
@@ -7,8 +8,10 @@ from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 
 
 
-class MaskRCNN():
+class MaskRCNN(nn.Module):
     def __init__(self, num_classes, pretrained = True, weights = "DEFAULT", backbone_weights = "DEFAULT"):
+        super(MaskRCNN, self).__init__()
+
         self.device = None
         if pretrained:
             self.model = maskrcnn_resnet50_fpn_v2(weights = weights, backbone_weights = backbone_weights)
@@ -29,25 +32,6 @@ class MaskRCNN():
             dim_reduced = dim_reduced, 
             num_classes = num_classes
         )
-
-    def state_dict(self):
-        return self.model.state_dict()
-
-    def load_state_dict(self, state_dict):
-        self.model.load_state_dict(state_dict)
-
-    def train(self):
-        self.model.train()
-
-    def eval(self):
-        self.model.eval()
-
-    def to(self, device):
-        self.device = device
-        self.model.to(device)
-
-    def parameters(self):
-        return self.model.parameters()
 
     #TODO: Change the forward method to implement nms
     def forward(self, x, y = None):
