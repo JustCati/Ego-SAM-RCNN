@@ -53,6 +53,7 @@ def main(args):
     annoPath = os.path.join(path, "annotations")
     metadataPath = os.path.join(annoPath, "ego_objects_metadata.json")
 
+    num_classes = 0
     for split in ["eval", "train"]:
         #* Convert to COCO if necessary
         src_json = os.path.join(annoPath, f"ego_objects_{split}.json")
@@ -62,7 +63,7 @@ def main(args):
             os.makedirs(os.path.join(path, "COCO"))
         if not os.path.exists(cocoPath):
             print("Converting to COCO format for split: ", split)
-            convert_to_coco(src_json, metadataPath, cocoPath)
+            num_classes = convert_to_coco(src_json, metadataPath, cocoPath)
 
         #* Generate masks if necessary
         if not os.path.exists(cocoPath.replace("coco", "coco_all")):
