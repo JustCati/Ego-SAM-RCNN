@@ -16,7 +16,7 @@ from pycocotools.coco import COCO
 class CocoDataset(VisionDataset):
     def __init__(self, path, annFile, transform = None, target_transform = None, transforms = None):
         super().__init__(path, transforms, transform, target_transform)
-        
+
         self.root = path
         self.coco = COCO(annFile)
         self.ids = list(self.coco.imgs.keys())
@@ -46,9 +46,10 @@ class CocoDataset(VisionDataset):
 
         areas = [target[i]['area'] for i in range(nums)]
         masks = np.array([coco.annToMask(target[i]) for i in range(nums)])
+        labels = [target[i]['category_id'] for i in range(nums)]
 
         img_id = torch.tensor([img_id])
-        labels = torch.ones((nums,), dtype=torch.int64)
+        labels = torch.tensor(labels, dtype=torch.int64)
         is_crowd = torch.zeros((nums,), dtype=torch.int64)
         areas = torch.as_tensor(areas, dtype=torch.float32)
         boxes = tv_tensors.BoundingBoxes(boxes, format='XYXY', canvas_size=img.shape[-2:])
@@ -70,4 +71,4 @@ class CocoDataset(VisionDataset):
 
 
     def __len__(self):
-        return len(self.ids)
+        return len(self.coco.getCatIds())
