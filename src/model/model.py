@@ -32,6 +32,9 @@ class MaskRCNN():
     def to(self, device):
         self.model.to(device)
 
+    def parameters(self):
+        return self.model.parameters()
+
     #TODO: Change the forward method to implement nms
     def forward(self, x, y = None):
         return self.model(x, y)
