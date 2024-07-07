@@ -97,10 +97,10 @@ def main(args):
         ])
 
         val = CocoDataset(img_path, valCocoPath, transform=T.Compose([T.Resize(640)]))
-        # train = CocoDataset(img_path, trainCocoPath, transforms = transform)
+        train = CocoDataset(img_path, trainCocoPath, transforms = transform)
 
-        BATCH_SIZE = 3
-        trainDataloader = data.DataLoader(val, 
+        BATCH_SIZE = 2
+        trainDataloader = data.DataLoader(train, 
                                         batch_size = BATCH_SIZE, 
                                         num_workers = 8, 
                                         pin_memory = True, 
