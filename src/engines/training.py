@@ -74,13 +74,14 @@ def train(cfg):
                         optimizer,
                         lr_scheduler,
                         tb_writer,
-                        epoch,
-                        checkpointer)
-        evaluate_one_epoch(model,
+                        epoch)
+        bbox_map, segm_map = evaluate_one_epoch(model,
                             valLoader,
                             evaluator,
                             tb_writer,
                             epoch)
+
+        checkpointer.save(epoch, model, optimizer, lr_scheduler, bbox_map, segm_map)
     #* ----------------------------------------------
 
     print("Training completed")
