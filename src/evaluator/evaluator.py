@@ -22,16 +22,16 @@ class Evaluator():
                             backend="faster_coco_eval")
 
 
-    def compute_map(self, preds, targets, img_size):
+    def compute_map(self, preds, targets):
         self.map_bbox.update(preds, targets)
         bbox_map = self.map_bbox.compute()
 
         segm_maps = []
-        targets = [{k: v.reshape(-1, img_size[-2], img_size[-1]) 
+        targets = [{k: v.reshape(-1, v.shape[-2], v.shape[-1])
                         if k == "masks" else v for k, v in elem.items()} for elem in targets]
 
         for th in self.thresholds:
-            act_preds = [{k: (v > th).reshape(-1, img_size[-2], img_size[-1]) 
+            act_preds = [{k: (v > th).reshape(-1, v.shape[-2], v.shape[-1]) 
                             if k == "masks" else v for k, v in elem.items()} for elem in preds]
             self.segm_mask.update(act_preds, targets)
             segm_maps.append(self.segm_mask.compute())
