@@ -96,11 +96,11 @@ def main(args):
             # GaussianNoise(p = 0.5, noise_p = 0.07, mean = 0, sigma = 5),
         ])
 
-        val = CocoDataset(img_path, valCocoPath, transform=T.Compose([T.Resize(640)]))
-        train = CocoDataset(img_path, trainCocoPath, transforms = transform)
+        valSet = CocoDataset(img_path, valCocoPath, transform=T.Compose([T.Resize(640)]))
+        trainSet = CocoDataset(img_path, trainCocoPath, transforms = transform)
 
         BATCH_SIZE = 2
-        trainDataloader = data.DataLoader(train, 
+        trainDataloader = data.DataLoader(trainSet, 
                                         batch_size = BATCH_SIZE, 
                                         num_workers = 8, 
                                         pin_memory = True, 
@@ -108,7 +108,7 @@ def main(args):
                                         generator=rng_generator,
                                         worker_init_fn=worker_reset_seed,
                                         collate_fn = lambda x: tuple(zip(*x)))
-        valDataloader = data.DataLoader(val, 
+        valDataloader = data.DataLoader(valSet, 
                                         batch_size = 1, 
                                         num_workers = 8, 
                                         pin_memory = True, 
@@ -116,7 +116,7 @@ def main(args):
                                         collate_fn = lambda x: tuple(zip(*x)))
 
     if args.sample:
-        plotSample(val, metadataPath)
+        plotSample(valSet, metadataPath)
 
     #* ----------------------------------------------------
 
@@ -128,7 +128,7 @@ def main(args):
         EPOCHS = args.epochs + 1 if args.epochs > 0 else 10
         tb_writer = SummaryWriter(os.path.join(modelOutputPath, "logs"))
         
-        num_classes = len(val)
+        num_classes = len(valSet)
         thresholds = torch.arange(0.5, 0.95, 0.05).tolist()
         evaluator = Evaluator(bbox_metric = "map", segm_metric = "map", thresholds=thresholds)
 
