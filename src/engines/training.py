@@ -50,7 +50,7 @@ def train_one_epoch(model, loader, optimizer, lr_scheduler, tb_writer: SummaryWr
 
 
 
-def trainModel(cfg):
+def train(cfg):
 
     #* --------------- Load Config ----------------
     model = cfg["model"]
