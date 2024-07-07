@@ -17,7 +17,7 @@ class Evaluator():
                             box_format="xyxy",
                             iou_type="bbox")
         self.segm_mask = map(iou_thresholds = self.thresholds,
-                            iou_type="mask")
+                            iou_type="segm")
 
 
     def compute_map(self, preds, targets, img_size):
