@@ -1,3 +1,4 @@
+import torch
 from tqdm import tqdm
 from .evaluating import evaluate_one_epoch
 
@@ -9,7 +10,7 @@ def train_one_epoch(model, loader, optimizer, lr_scheduler, tb_writer: SummaryWr
     device = model.device
     num_iters = len(loader)
 
-    pbar = tqdm(loader, desc=f"Epoch {epoch}")
+    pbar = tqdm(loader, desc=f"Training epoch {epoch}")
     for iter, target in enumerate(pbar, start=1):
         #* --------------- Forward Pass ----------------
         images, targets = target
@@ -44,8 +45,6 @@ def train_one_epoch(model, loader, optimizer, lr_scheduler, tb_writer: SummaryWr
         loss.backward()
         optimizer.step()
         lr_scheduler.step()
-        
-    print("[Train] Epoch: [{:03d}] Loss: {:.4f} Lr: {:.8f}".format(epoch, loss.item() / len(images), optimizer.param_groups[0]["lr"]))
     return
 
 
@@ -75,6 +74,7 @@ def train(cfg):
                         lr_scheduler,
                         tb_writer,
                         epoch)
+        torch.cuda.empty_cache()
         bbox_map, segm_map = evaluate_one_epoch(model,
                             valLoader,
                             evaluator,
