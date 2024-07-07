@@ -1,8 +1,10 @@
 import os
 import time
-import json
 import argparse
 import datetime
+
+from src.model import MaskRCNN
+from src.utils.checkpointer import Checkpointer
 
 from src.dataset.coco import convert_to_coco
 from src.dataset.create_masks import generate_masks
@@ -15,7 +17,7 @@ from src.transform.transform import RandomGaussianBlur, GaussianNoise
 import torch
 from torch.utils import data
 from torchvision.transforms import v2 as T
-from src.transform.transform import RandomGaussianBlur, GaussianNoise
+from torch.utils.tensorboard import SummaryWriter
 
 
 
@@ -115,6 +117,46 @@ def main(args):
 
     #* ----------------------------------------------------
 
+
+    #* --------------- Train the model -----------------
+
+    if args.train:
+        curr_epoch = 0
+        EPOCHS = args.epochs if args.epochs > 0 else 10
+
+        device = get_device()
+        model = MaskRCNN(num_classes, pretrained = True, weights = "DEFAULT", backbone_weights = "DEFAULT")
+        model.to(device)
+        
+        tb_writer = SummaryWriter(os.path.join(modelOutputPath, "logs"))
+
+        if args.train or args.resume != "":
+            print("\nTraining model")
+
+            params = [p for p in model.parameters() if p.requires_grad]
+            optimizer = torch.optim.AdamW(params, lr=1e-4, weight_decay=0.001)
+            lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=1, T_mult=2)
+            checkpointer = Checkpointer(args.resume if args.resume != "" else modelOutputPath)
+
+            if args.resume != "" and os.path.exists(args.resume) and os.path.isfile(args.resume):
+                print("Most recent trained model found, continuing training...")
+                model, optimizer, lr_scheduler, curr_epoch, box_map, mask_map = checkpointer.load(model, optimizer, lr_scheduler)
+
+            cfg = {
+            "model" : model,
+            "optimizer" : optimizer,
+            "lr_scheduler" : lr_scheduler,
+            "curr_epoch" : curr_epoch,
+            "epoch" : curr_epoch + (EPOCHS - curr_epoch),
+            "device" : device,
+            "trainDataloader" : trainDataloader,
+            "valDataloader" : valDataloader,
+            "tb_writer" : tb_writer,
+            "path" : modelOutputPath,
+            "box_map" : box_map if args.resume != "" else float("-inf"),
+            "mask_map" : mask_map if args.resume != "" else float("-inf"),
+        }
+        # trainModel(cfg)
 
 
 if __name__ == "__main__":
