@@ -17,7 +17,7 @@ class Checkpointer(object):
             self.perf_mask = self.checkpoint.get('perf_mask', 0.0)
         elif self.checkpoint is None and phase != 'train':
             raise RuntimeError('Cannot find checkpoint {}'.format(path))
-        self.output_dir = osp.dirname(path)
+        self.output_dir = osp.dirname(path) if osp.isfile(path) else path
 
 
     def load(self, model, optimizer=None, lr_scheduler=None):
