@@ -35,14 +35,14 @@ def main(args):
         if not os.path.exists(modelOutputPath):
             os.makedirs(modelOutputPath)
     elif args.resume:
-        modelOutputPath = os.path.basename(args.resume)
+        modelOutputPath = os.path.dirname(args.resume)
     elif args.perf or args.eval or args.demo:
         if args.perf:
-            modelOutputPath = os.path.basename(args.perf)
+            modelOutputPath = os.path.dirname(args.perf)
         elif args.eval:
-            modelOutputPath = os.path.basename(args.eval)
+            modelOutputPath = os.path.dirname(args.eval)
         elif args.demo:
-            modelOutputPath = os.path.basename(args.demo)
+            modelOutputPath = os.path.dirname(args.demo)
 
     if not os.path.exists(modelOutputPath) and not args.sample:
         raise ValueError(f"Path {modelOutputPath} does not exist")
