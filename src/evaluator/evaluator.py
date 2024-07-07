@@ -15,14 +15,16 @@ class Evaluator():
 
         self.map_bbox = map(iou_thresholds = self.thresholds,
                             box_format="xyxy",
-                            iou_type="bbox")
+                            iou_type="bbox",
+                            backend="faster_coco_eval")
         self.segm_mask = map(iou_thresholds = self.thresholds,
-                            iou_type="segm")
+                            iou_type="segm",
+                            backend="faster_coco_eval")
 
 
     def compute_map(self, preds, targets, img_size):
         self.map_bbox.update(preds, targets)
-        bbox_map = {k: v.item() for k, v in self.map_bbox.compute().items()}
+        bbox_map = self.map_bbox.compute()
 
         segm_maps = []
         targets = [{k: v.reshape(-1, img_size[-2], img_size[-1]) 
@@ -32,7 +34,7 @@ class Evaluator():
             act_preds = [{k: (v > th).reshape(-1, img_size[-2], img_size[-1]) 
                             if k == "masks" else v for k, v in elem.items()} for elem in preds]
             self.segm_mask.update(act_preds, targets)
-            segm_maps.append({k: v.item() for k, v in self.segm_mask.compute().items()})
+            segm_maps.append(self.segm_mask.compute())
         segm_map = {k: np.mean([elem[k] for elem in segm_maps]) for k in segm_maps[0].keys()}
 
         return bbox_map, segm_map
