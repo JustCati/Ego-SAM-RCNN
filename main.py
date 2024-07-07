@@ -87,6 +87,7 @@ def main(args):
 
         #! Uncomment Gaussian Noise but performance will suffer a lot
         transform = T.Compose([
+            T.Resize(640),
             T.RandomHorizontalFlip(0.5),
             T.RandomVerticalFlip(0.5),
             T.RandomRotation(degrees = (0, 180)),
@@ -95,7 +96,7 @@ def main(args):
             # GaussianNoise(p = 0.5, noise_p = 0.07, mean = 0, sigma = 5),
         ])
 
-        val = CocoDataset(img_path, valCocoPath)
+        val = CocoDataset(img_path, valCocoPath, transform=T.Compose([T.Resize(640)]))
         # train = CocoDataset(img_path, trainCocoPath, transforms = transform)
 
         BATCH_SIZE = 3
