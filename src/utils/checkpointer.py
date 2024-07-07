@@ -27,7 +27,7 @@ class Checkpointer(object):
                 optimizer.load_state_dict(self.checkpoint['optimizer_state_dict'])
             if lr_scheduler is not None:
                 lr_scheduler.load_state_dict(self.checkpoint['lr_scheduler_state_dict'])
-        return model, optimizer, lr_scheduler, self.curr_epoch
+        return model, optimizer, lr_scheduler, self.curr_epoch, self.perf_box, self.perf_mask
 
 
     def save(self, epoch, model, optimizer, lr_scheduler, perf_box, perf_mask):
