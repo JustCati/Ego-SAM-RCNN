@@ -1,0 +1,3 @@
+[submodule "sam"]
+	path = sam
+	url = git@github.com:facebookresearch/segment-anything.git
