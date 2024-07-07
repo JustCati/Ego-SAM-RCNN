@@ -78,8 +78,8 @@ def trainModel(cfg):
                         checkpointer)
         evaluate_one_epoch(model,
                             valLoader,
-                            tb_writer,
                             evaluator,
+                            tb_writer,
                             epoch)
     #* ----------------------------------------------
 
