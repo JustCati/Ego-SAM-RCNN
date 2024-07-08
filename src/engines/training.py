@@ -1,3 +1,4 @@
+import os
 import torch
 from tqdm import tqdm
 from .evaluating import evaluate_one_epoch
@@ -45,7 +46,7 @@ def train_one_epoch(model, loader, optimizer, lr_scheduler, tb_writer: SummaryWr
         loss.backward()
         optimizer.step()
         lr_scheduler.step()
-        torch.cuda.empty_cache()
+        # torch.cuda.empty_cache()
     return
 
 
@@ -65,6 +66,9 @@ def train(cfg):
     evaluator = cfg["evaluator"]
     #* --------------------------------------------
 
+    cocoGT = valLoader.dataset.coco
+    predPath = os.path.join(os.path.dirname(valLoader.dataset.annfile), "results.json")
+
     #* --------------- Train and Evaluate ----------------
     print("\nStart training model...")
 
@@ -79,6 +83,8 @@ def train(cfg):
         bbox_map, segm_map = evaluate_one_epoch(model,
                             valLoader,
                             evaluator,
+                            cocoGT,
+                            predPath,
                             tb_writer,
                             epoch)
 
