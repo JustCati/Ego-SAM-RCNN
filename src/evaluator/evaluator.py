@@ -1,40 +1,36 @@
-import torch
-import numpy as np
-from torchmetrics.detection.mean_ap import MeanAveragePrecision as map
+from pycocotools.coco import COCO
+from pycocotools.cocoeval import COCOeval
 
 
 
 class Evaluator():
     def __init__(self, 
-                 bbox_metric: str = "map", 
-                 segm_metric: str = "map", 
-                 thresholds: list = torch.arange(0.5, 0.95, 0.05).tolist()):
-        self.bbox_metric = bbox_metric
-        self.segm_metric = segm_metric
-        self.thresholds = thresholds
+                 gt: COCO,
+                 pred_box_json: str,
+                 pred_mask_json: str):
+        self.cocoGT = gt
+        self.pred_box_json = pred_box_json
+        self.pred_mask_json = pred_mask_json
 
-        self.map_bbox = map(iou_thresholds = self.thresholds,
-                            box_format="xyxy",
-                            iou_type="bbox",
-                            backend="faster_coco_eval")
-        self.segm_mask = map(iou_thresholds = self.thresholds,
-                            iou_type="segm",
-                            backend="faster_coco_eval")
+        self.coco_box = self.cocoGT.loadRes(self.pred_box_json)
+        self.coco_mask = self.cocoGT.loadRes(self.pred_mask_json)
 
 
-    def compute_map(self, preds, targets):
-        self.map_bbox.update(preds, targets)
-        bbox_map = self.map_bbox.compute()
+    #* Single wrapper function for memory reason
+    #* (Python deletes the objects only if they are in differents functions)
+    def single_compute(self, type: str = "bbox"):
+        if type == "bbox":
+            cocoeval = COCOeval(self.cocoGT, self.coco_box, "bbox")
+        elif type == "segm":
+            cocoeval = COCOeval(self.cocoGT, self.coco_mask, "segm")
 
-        segm_maps = []
-        targets = [{k: v.reshape(-1, v.shape[-2], v.shape[-1])
-                        if k == "masks" else v for k, v in elem.items()} for elem in targets]
+        cocoeval.evaluate()
+        cocoeval.accumulate()
+        cocoeval.summarize()
+        return cocoeval.stats
 
-        for th in self.thresholds:
-            act_preds = [{k: (v > th).reshape(-1, v.shape[-2], v.shape[-1]) 
-                            if k == "masks" else v for k, v in elem.items()} for elem in preds]
-            self.segm_mask.update(act_preds, targets)
-            segm_maps.append(self.segm_mask.compute())
-        segm_map = {k: np.mean([elem[k] for elem in segm_maps]) for k in segm_maps[0].keys()}
 
-        return bbox_map, segm_map
+    def compute_map(self):
+        box_map = self.single_compute("bbox")
+        mask_map = self.single_compute("segm")
+        return box_map, mask_map
