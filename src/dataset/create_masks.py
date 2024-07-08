@@ -2,9 +2,9 @@ import os
 import sys
 import json
 import cv2 as cv
-import numpy as np
 from tqdm import tqdm
 from pycocotools.coco import COCO
+from pycocotools.mask import encode
 from torchvision.ops.boxes import box_convert
 sys.path.append(os.path.join(os.getcwd(), "sam", "segment_anything"))
 
@@ -15,22 +15,6 @@ from sam.segment_anything import (
 )
 import warnings
 warnings.filterwarnings("ignore")
-
-
-
-def binary_mask_to_rle_np(binary_mask):
-    rle = {"counts": [], "size": list(binary_mask.shape)}
-
-    flattened_mask = binary_mask.ravel(order="F")
-    diff_arr = np.diff(flattened_mask)
-    nonzero_indices = np.where(diff_arr != 0)[0] + 1
-    lengths = np.diff(np.concatenate(([0], nonzero_indices, [len(flattened_mask)])))
-
-    if flattened_mask[0] == 1:
-        lengths = np.concatenate(([0], lengths))
-
-    rle["counts"] = lengths.tolist()
-    return rle
 
 
 
