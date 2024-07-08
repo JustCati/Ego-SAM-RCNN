@@ -98,9 +98,8 @@ def main(args):
         valSet = CocoDataset(img_path, valCocoPath, transform=T.Compose([T.Resize(640)]))
         trainSet = CocoDataset(img_path, trainCocoPath, transforms = transform)
 
-        BATCH_SIZE = 2
         trainDataloader = data.DataLoader(trainSet, 
-                                        batch_size = BATCH_SIZE, 
+                                        batch_size = args.batch_size, 
                                         num_workers = 8, 
                                         pin_memory = True, 
                                         shuffle = True,
@@ -171,6 +170,7 @@ if __name__ == "__main__":
     parser.add_argument("--path", type=str, default=os.path.join(os.getcwd(), "data", "EgoObjects"), help="Path to the data directory")
     parser.add_argument("--sample", action="store_true", default=False, help="Plot a sample image from the dataset with ground truth masks")
     parser.add_argument("--train", action="store_true", default=False, help="Force Training of the model")
+    parser.add_argument("--batch_size", type=int, default=1, help="Batch size for training")
     parser.add_argument("--demo", type=str, default="", help="Run a demo of inference on 3 random image from the validation set with the model checkpoint at the specified path")
     parser.add_argument("--perf", type=str, default="", help="Plot the performance of the model checkpoint at the specified path")
     parser.add_argument("--eval", type=str, default="", help="Evaluate the model checkpoint at the specified path")
