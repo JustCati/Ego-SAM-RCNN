@@ -51,11 +51,14 @@ def evaluate_one_epoch(model, loader, evaluator, cocoGT, predPath, tb_writer: Su
 
         #* --------------- Save Prediction File ----------------
 
+        output_box_path = predPath.replace("results", "box_results")
+        output_mask_path = predPath.replace("results", "mask_results")
+
         output_box = [elem for elem in box_results["res"]]
         output_mask = [elem for elem in mask_results["res"]]
-        with open(predPath.replace("results", "box_results"), "w") as f:
+        with open(output_box_path, "w") as f:
             json.dump(output_box, f)
-        with open(predPath.replace("results", "mask_results"), "w") as f:
+        with open(output_mask_path, "w") as f:
             json.dump(output_mask, f)
 
         #* --------------- Log mAP ----------------
