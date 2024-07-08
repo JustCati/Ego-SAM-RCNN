@@ -76,8 +76,8 @@ def main(args):
             print("Genereting masks for split: ", split)
             generate_masks(cocoPath, img_path, sam_path, device = device)
 
-    valCocoPath = os.path.join(path, "COCO", "ego_objects_coco_all_eval.json")
-    trainCocoPath = os.path.join(path, "COCO", "ego_objects_coco_all_train.json")
+    valCocoPath = os.path.join(os.path.dirname(path),  "COCO", "ego_objects_coco_all_eval.json")
+    trainCocoPath = os.path.join(os.path.dirname(path), "COCO", "ego_objects_coco_all_train.json")
 
     #* --------------- Create Dataset -----------------
 
