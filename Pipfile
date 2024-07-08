@@ -6,7 +6,6 @@ name = "pypi"
 [packages]
 torch = "*"
 torchvision = "*"
-torchmetrics = "*"
 opencv-python = "*"
 pycocotools = "*"
 matplotlib = "*"

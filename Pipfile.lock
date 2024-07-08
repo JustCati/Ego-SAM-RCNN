@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "8090050bc2a4bbf18cc7907636bd3956097c6e2ca74d6d14993875ab7a106b50"
+            "sha256": "afd6b2acb0226c53a6d2b2447f8f187adc1a9d143a674431d27744376c21e97d"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -514,14 +514,6 @@
             ],
             "markers": "python_version >= '3.7'",
             "version": "==1.4.5"
-        },
-        "lightning-utilities": {
-            "hashes": [
-                "sha256:2aec1d067e5ab61a8978f879998850a97f9a3764ee54aade329552706b0d189b",
-                "sha256:7485fad0e3c5607a6bde4507935689c553a2c91325de2127b4bb8171a601e236"
-            ],
-            "markers": "python_version >= '3.8'",
-            "version": "==0.11.3.post0"
         },
         "lvis": {
             "hashes": [
@@ -1276,15 +1268,6 @@
             "index": "pypi",
             "markers": "python_full_version >= '3.8.0'",
             "version": "==2.3.1"
-        },
-        "torchmetrics": {
-            "hashes": [
-                "sha256:ab234216598e3fbd8d62ee4541a0e74e7e8fc935d099683af5b8da50f745b3c8",
-                "sha256:ab9bcfe80e65dbabbddb6cecd9be21f1f1d5207bb74051ef95260740f2762358"
-            ],
-            "index": "pypi",
-            "markers": "python_version >= '3.8'",
-            "version": "==1.4.0.post0"
         },
         "torchvision": {
             "hashes": [
