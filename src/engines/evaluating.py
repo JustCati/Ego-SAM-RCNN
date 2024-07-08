@@ -1,3 +1,4 @@
+import os
 import torch
 import json
 import numpy as np
@@ -6,8 +7,11 @@ from pycocotools.mask import encode
 from torchvision.ops import box_convert
 from torch.utils.tensorboard import SummaryWriter
 
+from src.evaluator.evaluator import Evaluator
 
-def evaluate_one_epoch(model, loader, evaluator, cocoGT, predPath, tb_writer: SummaryWriter = None, epoch = 1):
+
+
+def evaluate_one_epoch(model, loader, cocoGT, predPath, tb_writer: SummaryWriter = None, epoch = 1):
     model.eval()
     device = model.device
 
@@ -48,6 +52,7 @@ def evaluate_one_epoch(model, loader, evaluator, cocoGT, predPath, tb_writer: Su
                         "segmentation": mask,
                         "score": round(score, 2)
                     })
+            # torch.cuda.empty_cache()
 
         #* --------------- Save Prediction File ----------------
 
@@ -61,14 +66,22 @@ def evaluate_one_epoch(model, loader, evaluator, cocoGT, predPath, tb_writer: Su
         with open(output_mask_path, "w") as f:
             json.dump(output_mask, f)
 
+        del box_results, mask_results
+        del output_box, output_mask
+
+        #* --------------- Evaluate ----------------
+        evaluator = Evaluator(cocoGT, output_box_path, output_mask_path)
+        bbox_map, segm_map = evaluator.compute_map()
+
         #* --------------- Log mAP ----------------
+
         if tb_writer is not None:
             maps = {
-                "bbox_map": bbox_map["map"],
-                "segm_map": segm_map["map"]
+                "bbox_map": bbox_map[0],
+                "segm_map": segm_map[0]
             }
             tb_writer.add_scalars("val/map", maps, epoch)
 
-        print("[Validation] Epoch: {:03d} Segmentation mAP: {:.2f}, Bounding Box mAP: {:.2f}".format(epoch, segm_map["map"], bbox_map["map"]))
+        print("[Validation] Epoch: {:03d} Segmentation mAP: {:.2f}, Bounding Box mAP: {:.2f}".format(epoch, segm_map[0], bbox_map[0]))
         print()
-    return bbox_map["map"], segm_map["map"]
+    return bbox_map[0], segm_map[0]
