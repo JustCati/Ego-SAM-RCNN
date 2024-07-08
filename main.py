@@ -4,7 +4,6 @@ import argparse
 import datetime
 
 from src.model.model import MaskRCNN
-from src.evaluator.evaluator import Evaluator
 from src.utils.checkpointer import Checkpointer
 
 from src.engines.training import train
@@ -126,12 +125,9 @@ def main(args):
 
     if args.train:
         curr_epoch = 1
+        num_classes = valSet.get_num_classes()
         EPOCHS = args.epochs + 1 if args.epochs > 0 else 10
         tb_writer = SummaryWriter(os.path.join(modelOutputPath, "logs"))
-
-        num_classes = valSet.get_num_classes()
-        thresholds = torch.arange(0.5, 0.95, 0.05).tolist()
-        evaluator = Evaluator(bbox_metric = "map", segm_metric = "map", thresholds=thresholds)
 
         device = get_device()
         model = MaskRCNN(num_classes, pretrained = True, weights = "DEFAULT", backbone_weights = "DEFAULT")
@@ -160,7 +156,6 @@ def main(args):
                 "valDataloader" : valDataloader,
                 "tb_writer" : tb_writer,
                 "checkpointer" : checkpointer,
-                "evaluator" : evaluator
             }
             train(cfg)
 

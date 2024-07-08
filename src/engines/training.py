@@ -63,7 +63,6 @@ def train(cfg):
     valLoader = cfg["valDataloader"]
     tb_writer = cfg["tb_writer"]
     checkpointer = cfg["checkpointer"]
-    evaluator = cfg["evaluator"]
     #* --------------------------------------------
 
     cocoGT = valLoader.dataset.coco
@@ -82,7 +81,6 @@ def train(cfg):
         torch.cuda.empty_cache()
         bbox_map, segm_map = evaluate_one_epoch(model,
                             valLoader,
-                            evaluator,
                             cocoGT,
                             predPath,
                             tb_writer,
