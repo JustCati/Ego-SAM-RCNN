@@ -17,6 +17,7 @@ class CocoDataset(VisionDataset):
     def __init__(self, path, annFile, transform = None, target_transform = None, transforms = None):
         super().__init__(path, transforms, transform, target_transform)
 
+        self.annfile = annFile
         self.root = path
         self.coco = COCO(annFile)
         self.ids = list(self.coco.imgs.keys())
@@ -73,4 +74,5 @@ class CocoDataset(VisionDataset):
         return len(self.coco.getCatIds())
 
     def __len__(self):
-        return len(self.ids)
+        # return len(self.ids)
+        return 350
