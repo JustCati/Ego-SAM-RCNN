@@ -127,8 +127,8 @@ def main(args):
         curr_epoch = 1
         EPOCHS = args.epochs + 1 if args.epochs > 0 else 10
         tb_writer = SummaryWriter(os.path.join(modelOutputPath, "logs"))
-        
-        num_classes = len(valSet)
+
+        num_classes = valSet.get_num_classes()
         thresholds = torch.arange(0.5, 0.95, 0.05).tolist()
         evaluator = Evaluator(bbox_metric = "map", segm_metric = "map", thresholds=thresholds)
 

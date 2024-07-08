@@ -69,6 +69,8 @@ class CocoDataset(VisionDataset):
 
         return img, target
 
+    def get_num_classes(self):
+        return len(self.coco.getCatIds())
 
     def __len__(self):
-        return len(self.coco.getCatIds())
+        return len(self.ids)
