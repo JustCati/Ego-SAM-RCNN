@@ -74,5 +74,4 @@ class CocoDataset(VisionDataset):
         return len(self.coco.getCatIds())
 
     def __len__(self):
-        # return len(self.ids)
-        return 350
+        return len(self.ids)
