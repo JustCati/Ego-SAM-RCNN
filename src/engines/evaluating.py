@@ -72,6 +72,8 @@ def evaluate_one_epoch(model, loader, cocoGT, predPath, tb_writer: SummaryWriter
         #* --------------- Evaluate ----------------
         evaluator = Evaluator(cocoGT, output_box_path, output_mask_path)
         bbox_map, segm_map = evaluator.compute_map()
+        os.remove(output_box_path)
+        os.remove(output_mask_path)
 
         #* --------------- Log mAP ----------------
 
