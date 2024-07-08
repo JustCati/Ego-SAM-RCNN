@@ -57,27 +57,28 @@ def main(args):
     #* Check if dataset annotations json file is already preprocessed
     device = get_device()
     annoPath = os.path.join(path, "annotations")
+    cocoPath = os.path.join(os.path.dirname(path), "COCO")
     metadataPath = os.path.join(annoPath, "ego_objects_metadata.json")
 
     for split in ["eval", "train"]:
         #* Convert to COCO if necessary
         src_json = os.path.join(annoPath, f"ego_objects_{split}.json")
-        cocoPath = os.path.join(path, "COCO", f"ego_objects_coco_{split}.json")
+        dst_coco = os.path.join(cocoPath, f"ego_objects_coco_{split}.json")
 
-        if not os.path.exists(os.path.join(path, "COCO")):
-            os.makedirs(os.path.join(path, "COCO"))
         if not os.path.exists(cocoPath):
+            os.makedirs(cocoPath)
+        if not os.path.exists(dst_coco):
             print("Converting to COCO format for split: ", split)
-            convert_to_coco(src_json, metadataPath, cocoPath)
+            convert_to_coco(src_json, metadataPath, dst_coco)
 
         #* Generate masks if necessary
-        if not os.path.exists(cocoPath.replace("coco", "coco_all")):
+        if not os.path.exists(dst_coco.replace("coco", "coco_all")):
             sam_path = os.path.join(os.getcwd(), "sam-checkpoints", "sam_vit_h.pth")
             print("Genereting masks for split: ", split)
-            generate_masks(cocoPath, img_path, sam_path, device = device)
+            generate_masks(dst_coco, img_path, sam_path, device = device)
 
-    valCocoPath = os.path.join(os.path.dirname(path),  "COCO", "ego_objects_coco_all_eval.json")
-    trainCocoPath = os.path.join(os.path.dirname(path), "COCO", "ego_objects_coco_all_train.json")
+    valCocoPath = os.path.join(cocoPath, "ego_objects_coco_all_eval.json")
+    trainCocoPath = os.path.join(cocoPath, "ego_objects_coco_all_train.json")
 
     #* --------------- Create Dataset -----------------
 
