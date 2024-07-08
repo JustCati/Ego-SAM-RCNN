@@ -79,13 +79,8 @@ def generate_masks(cocoPath, imgPath, sam_path = None, device = "cuda"):
         # Convert binary mask to RLE and update the COCO JSON
         for i, mask in enumerate(masks):
             mask = mask.cpu().numpy()
-            rle = binary_mask_to_rle_np(mask)
-
             ann_idx = annMap[anns_ids[i]]
-            cocoJSON["annotations"][ann_idx]["segmentation"] = {
-                "counts": rle["counts"], 
-                "size": rle["size"]
-            }
+            cocoJSON["annotations"][ann_idx]["segmentation"] = encode(mask)
 
     with open(cocoPath.replace("coco", "coco_all"), "w") as f:
         json.dump(cocoJSON, f)
