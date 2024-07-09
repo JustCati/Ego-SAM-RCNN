@@ -57,7 +57,7 @@ class Checkpointer(object):
             self.perf_box = perf_box
             self.perf_mask = perf_mask
 
-        name = "box" if box else "mask" if mask else "overall" if overall else None
+        name = "box" if box else "mask" if mask else "overall"
         torch.save({
             'epoch': epoch,
             'model_state_dict': model.module.state_dict() if torch.cuda.device_count() > 1 else model.state_dict(),
