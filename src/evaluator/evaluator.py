@@ -12,8 +12,14 @@ class Evaluator():
         self.pred_box_json = pred_box_json
         self.pred_mask_json = pred_mask_json
 
-        self.coco_box = self.cocoGT.loadRes(self.pred_box_json)
-        self.coco_mask = self.cocoGT.loadRes(self.pred_mask_json)
+        try: 
+            self.coco_box = self.cocoGT.loadRes(self.pred_box_json)
+        except:
+            self.coco_box = None
+        try:
+            self.coco_mask = self.cocoGT.loadRes(self.pred_mask_json)
+        except:
+            self.coco_mask = None
 
 
     #* Single wrapper function for memory reason
@@ -31,6 +37,6 @@ class Evaluator():
 
 
     def compute_map(self):
-        box_map = self.single_compute("bbox")
-        mask_map = self.single_compute("segm")
+        box_map = self.single_compute("bbox") if self.coco_box is not None else [0.0]
+        mask_map = self.single_compute("segm") if self.coco_mask is not None else [0.0]
         return box_map, mask_map
