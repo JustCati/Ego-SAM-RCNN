@@ -112,6 +112,7 @@ def main(args):
                                         shuffle = False, 
                                         collate_fn = lambda x: tuple(zip(*x)))
         print("Dataset created")
+        print("Number of classes: ", valSet.get_num_classes(), "+1 for background")
         print("Length of train dataloader: ", len(trainDataloader))
         print("Length of val dataloader: ", len(valDataloader))
 
