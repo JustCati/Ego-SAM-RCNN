@@ -25,12 +25,12 @@ class MaskRCNN(nn.Module):
 
         self.model.roi_heads.box_predictor = FastRCNNPredictor(
             in_channels = in_features_box, 
-            num_classes = num_classes
+            num_classes = num_classes + 1
         )
         self.model.roi_heads.mask_predictor = MaskRCNNPredictor(
             in_channels = in_features_mask, 
             dim_reduced = dim_reduced, 
-            num_classes = num_classes
+            num_classes = num_classes + 1
         )
 
     def to(self, device):
