@@ -11,8 +11,8 @@ def train_one_epoch(model, loader, optimizer, lr_scheduler, tb_writer: SummaryWr
     device = model.device
     num_iters = len(loader)
 
-    pbar = tqdm(loader, desc=f"Training epoch {epoch}")
-    for iter, target in enumerate(pbar, start=1):
+    pbar = tqdm(loader, desc=f"Training epoch {epoch + 1}")
+    for iter, target in enumerate(pbar):
         #* --------------- Forward Pass ----------------
         images, targets = target
         images = list([image.to(device) for image in images])

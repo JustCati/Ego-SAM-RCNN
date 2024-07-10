@@ -35,7 +35,7 @@ def main(args):
         raise ValueError(f"Path {path} does not exist")
 
     modelOutputPath = ""
-    if args.train:
+    if args.train and not args.resume:
         modelOutputPath = os.path.join(os.getcwd(), "ckpts", "sammask_rcnn_" + str(datetime.datetime.fromtimestamp(int(time.time()))))
         if not os.path.exists(modelOutputPath):
             os.makedirs(modelOutputPath)
@@ -125,9 +125,9 @@ def main(args):
     #* --------------- Train the model -----------------
 
     if args.train:
-        curr_epoch = 1
+        curr_epoch = 0
         num_classes = valSet.get_num_classes()
-        EPOCHS = args.epochs + 1 if args.epochs > 0 else 10
+        EPOCHS = args.epochs if args.epochs > 0 else 10
         tb_writer = SummaryWriter(os.path.join(modelOutputPath, "logs"))
 
         device = get_device()
