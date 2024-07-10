@@ -86,7 +86,8 @@ def train(cfg):
                             tb_writer,
                             epoch)
 
-        checkpointer.save(epoch, model, optimizer, lr_scheduler, bbox_map, segm_map)
+        checkpointer.save(epoch + 1, model, optimizer, lr_scheduler, bbox_map, segm_map)
+
     #* ----------------------------------------------
 
     print("Training completed")
