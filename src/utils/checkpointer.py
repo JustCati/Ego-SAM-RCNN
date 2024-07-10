@@ -27,7 +27,7 @@ class Checkpointer(object):
                 optimizer.load_state_dict(self.checkpoint['optimizer_state_dict'])
             if lr_scheduler is not None:
                 lr_scheduler.load_state_dict(self.checkpoint['lr_scheduler_state_dict'])
-        return model, optimizer, lr_scheduler, self.curr_epoch, self.perf_box, self.perf_mask
+        return model, optimizer, lr_scheduler, self.curr_epoch
 
 
     def save(self, epoch, model, optimizer, lr_scheduler, perf_box, perf_mask):
@@ -45,7 +45,7 @@ class Checkpointer(object):
             os.remove(osp.join(self.output_dir, 'epoch-{}.pth'.format(epoch-1)))
     
         # Save best model
-        box, mask, overall = False, False, False
+        box, mask = False, False,
         if self.perf_box < perf_box and self.perf_mask > perf_mask:
             box = True
             self.perf_box = perf_box
@@ -53,7 +53,6 @@ class Checkpointer(object):
             mask = True
             self.perf_mask = perf_mask
         elif self.perf_box < perf_box and self.perf_mask < perf_mask:
-            overall = True
             self.perf_box = perf_box
             self.perf_mask = perf_mask
 
