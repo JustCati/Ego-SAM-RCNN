@@ -1,6 +1,7 @@
 import os
 import torch
 import os.path as osp
+from glob import glob
 
 
 
@@ -13,8 +14,10 @@ class Checkpointer(object):
 
         if self.checkpoint is not None and phase == 'train':
             self.curr_epoch = self.checkpoint.get('epoch', 0)
-            self.perf_box = self.checkpoint.get('perf_box', 0.0)
-            self.perf_mask = self.checkpoint.get('perf_mask', 0.0)
+
+            self.best_checkpoint = self._load_checkpoint(glob(osp.join(osp.dirname(path), 'best_epoch_overall-*.pth'))[0])
+            self.perf_box = self.best_checkpoint.get('perf_box', 0.0)
+            self.perf_mask = self.best_checkpoint.get('perf_mask', 0.0)
         elif self.checkpoint is None and phase != 'train':
             raise RuntimeError('Cannot find checkpoint {}'.format(path))
         self.output_dir = osp.dirname(path) if osp.isfile(path) else path
