@@ -3,6 +3,7 @@ import numpy as np
 from PIL import Image
 
 import torch
+from torchvision.ops import box_convert
 from torchvision import transforms, tv_tensors
 from torchvision.datasets import VisionDataset
 
@@ -37,21 +38,25 @@ class CocoDataset(VisionDataset):
         img = transforms.ToTensor()(img)
 
         #* Load and convert to tensor the annotations
-        nums = len(target)
         boxes = []
+        toIgnore = []
+        nums = len(target)
         for i in range(nums):
-            xmin, ymin, width, height = target[i]['bbox']
-            xmax = xmin + width
-            ymax = ymin + height
-            boxes.append([xmin, ymin, xmax, ymax])
+            box = torch.tensor(target[i]['bbox'])
+            bbox = box_convert(box, 'xywh', 'xyxy')
+            #! Sanity check for positive width and height
+            if bbox[2] <= bbox[0] or bbox[3] <= bbox[1]:
+                toIgnore.append(i)
+                continue
+            boxes.append(bbox.tolist())
 
-        areas = [target[i]['area'] for i in range(nums)]
-        masks = np.array([coco.annToMask(target[i]) for i in range(nums)])
-        labels = [target[i]['category_id'] for i in range(nums)]
+        areas = [target[i]['area'] for i in range(nums) if i not in toIgnore]
+        masks = np.array([coco.annToMask(target[i]) for i in range(nums) if i not in toIgnore])
+        labels = [target[i]['category_id'] for i in range(nums) if i not in toIgnore]
 
         img_id = torch.tensor([img_id])
         labels = torch.tensor(labels, dtype=torch.int64)
-        is_crowd = torch.zeros((nums,), dtype=torch.int64)
+        is_crowd = torch.zeros((nums - len(toIgnore),), dtype=torch.int64)
         areas = torch.as_tensor(areas, dtype=torch.float32)
         boxes = tv_tensors.BoundingBoxes(boxes, format='XYXY', canvas_size=img.shape[-2:])
         masks = tv_tensors.Mask(masks)
