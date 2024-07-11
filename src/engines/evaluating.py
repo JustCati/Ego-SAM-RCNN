@@ -14,9 +14,7 @@ from src.evaluator.evaluator import Evaluator
 def evaluate_one_epoch(model, loader, cocoGT, predPath, tb_writer: SummaryWriter = None, epoch = 1):
     model.eval()
     device = model.device
-
-    box_results, mask_results = dict(), dict()
-    box_results["res"], mask_results["res"] = [], []
+    box_results, mask_results = [], []
 
     with torch.no_grad():
         pbar = tqdm(loader, desc=f"Validating epoch {epoch}")
@@ -32,7 +30,7 @@ def evaluate_one_epoch(model, loader, cocoGT, predPath, tb_writer: SummaryWriter
             #* --------------- Create Prediction File ----------------
             for i, elem in enumerate(pred):
                 for idx, bbox in enumerate(elem["boxes"]):
-                   box_results["res"].append({
+                   box_results.append({
                           "image_id": img_ids[i].item(),
                           "category_id": elem["labels"][idx].item(),
                           "bbox": [round(elem, 2) for elem in box_convert(bbox, "xyxy", "xywh").tolist()],
@@ -46,7 +44,7 @@ def evaluate_one_epoch(model, loader, cocoGT, predPath, tb_writer: SummaryWriter
                     mask = encode(np.asfortranarray((mask > 0.5).cpu().numpy()))
                     mask["counts"] = mask["counts"].decode("utf-8")
 
-                    mask_results["res"].append({
+                    mask_results.append({
                         "image_id": img_ids[i].item(),
                         "category_id": elem["labels"][idx].item(),
                         "segmentation": mask,
@@ -59,15 +57,13 @@ def evaluate_one_epoch(model, loader, cocoGT, predPath, tb_writer: SummaryWriter
         output_box_path = predPath.replace("results", "box_results")
         output_mask_path = predPath.replace("results", "mask_results")
 
-        output_box = [elem for elem in box_results["res"]]
-        output_mask = [elem for elem in mask_results["res"]]
+        #* Prefer to save the results in a file instead of keeping them in memory
+        #* to avoid memory issues with coco evaluator
         with open(output_box_path, "w") as f:
-            json.dump(output_box, f)
+            json.dump(box_results, f)
         with open(output_mask_path, "w") as f:
-            json.dump(output_mask, f)
-
+            json.dump(mask_results, f)
         del box_results, mask_results
-        del output_box, output_mask
 
         #* --------------- Evaluate ----------------
         evaluator = Evaluator(cocoGT, output_box_path, output_mask_path)
