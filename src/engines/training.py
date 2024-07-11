@@ -38,6 +38,7 @@ def train_one_epoch(model, loader, optimizer, lr_scheduler, tb_writer: SummaryWr
         #* --------------- Log Progress to pbar ----------------
         pbar.set_postfix({
             'lr': '{:.7f}'.format(lr_scheduler.get_last_lr()[0]),
+            "cls_loss": '{:.5f}'.format(loss_dict["loss_classifier"].item()),
             'box_loss': '{:.5f}'.format(loss_dict["loss_box_reg"].item()),
             'mask_loss': '{:.5f}'.format(loss_dict["loss_mask"].item())
         })
