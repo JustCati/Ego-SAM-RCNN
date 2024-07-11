@@ -26,7 +26,8 @@ def train_one_epoch(model, loader, optimizer, lr_scheduler, tb_writer: SummaryWr
 
         losses = {
             "loss_box_reg": loss_dict["loss_box_reg"].item(), 
-            "loss_mask": loss_dict["loss_mask"].item()
+            "loss_mask": loss_dict["loss_mask"].item(),
+            "loss_classifier": loss_dict["loss_classifier"].item(),
         }
         tb_writer.add_scalars("train/all_losses", losses, global_step)
         tb_writer.add_scalar("train/final_loss", loss.item() / len(images), global_step)
