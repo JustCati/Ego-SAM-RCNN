@@ -43,9 +43,13 @@ class Checkpointer(object):
             "perf_mask": perf_mask,
         }, osp.join(self.output_dir, 'epoch-{}.pth'.format(epoch)))
 
+
+        #* Commented out to prevent deletion of previous epoch model, this way we
+        #* can manually select the best model for specific bbox or mask performance and not only overall
+
         # Delete previous epoch model
-        if epoch > 1:
-            os.remove(osp.join(self.output_dir, 'epoch-{}.pth'.format(epoch-1)))
+        # if epoch > 1:
+        #     os.remove(osp.join(self.output_dir, 'epoch-{}.pth'.format(epoch-1)))
     
         # Save best model
         if self.perf_box <= perf_box and self.perf_mask <= perf_mask:
