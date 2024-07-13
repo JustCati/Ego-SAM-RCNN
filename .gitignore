@@ -221,3 +221,4 @@ ckpts
 ckpts/*
 sam-checkpoints/*
 *.ttf
+.BACKUP/*
