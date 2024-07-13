@@ -94,7 +94,10 @@ def main(args):
             # GaussianNoise(p = 0.5, noise_p = 0.07, mean = 0, sigma = 5),
         ])
 
-        valSet = CocoDataset(img_path, valCocoPath, transform=T.Compose([T.Resize(640)]))
+        if args.train:
+            valSet = CocoDataset(img_path, valCocoPath, transform=T.Compose([T.Resize(640)]))
+        else:
+            valSet = CocoDataset(img_path, valCocoPath)
         trainSet = CocoDataset(img_path, trainCocoPath, transforms = transform)
 
         trainDataloader = data.DataLoader(trainSet, 
