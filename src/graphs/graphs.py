@@ -1,9 +1,8 @@
-import torch
 import json
-from torchvision.utils import draw_segmentation_masks, draw_bounding_boxes
-
-import numpy as np
+import torch
 import matplotlib.pyplot as plt
+from torchvision.transforms import transforms
+from torchvision.utils import draw_segmentation_masks, draw_bounding_boxes
 
 
 
@@ -35,3 +34,34 @@ def plotSample(dataset, metadata):
     plt.title("Boxes & Masks")
     plt.tight_layout()
     plt.show()
+
+
+
+def plotDemo(img, target, prediction, save = False, path = None):
+    plt.subplot(1, 3, 1)
+    plt.axis('off')
+    plt.imshow(transforms.ToPILImage()(img), aspect='auto')
+
+    plt.subplot(1, 3, 2)
+    image = (img * 255).type(torch.uint8)
+    targetMasks = target["masks"].type(torch.bool).reshape(-1, img.shape[-2], img.shape[-1])
+    image = draw_segmentation_masks(image, targetMasks, alpha=0.5, colors="yellow")
+    image = draw_bounding_boxes(image, target["boxes"], colors="white", width=3)
+    plt.imshow(transforms.ToPILImage()(image), aspect='auto')
+    plt.axis('off')
+
+    plt.subplot(1, 3, 3)
+    img = (img * 255).type(torch.uint8)
+    masks = prediction["masks"].type(torch.bool).reshape(-1, img.shape[-2], img.shape[-1])
+    img = draw_bounding_boxes(img, target["boxes"], colors="white", width=3)
+    img = draw_bounding_boxes(img, prediction["boxes"], colors="red", width=3)
+    img = draw_segmentation_masks(img.type(torch.uint8), masks, alpha=0.5, colors="red")
+    plt.imshow(transforms.ToPILImage()(img), aspect='auto')
+    plt.axis('off')
+
+    plt.tight_layout()
+    if save:
+        plt.savefig(path)
+        plt.close()
+    else:
+        plt.show()
