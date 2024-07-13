@@ -88,7 +88,7 @@ def main(args):
 
         #! Uncomment Gaussian Noise but performance will suffer a lot
         transform = T.Compose([
-            T.Resize(640),
+            T.Resize(800),
             T.RandomHorizontalFlip(0.5),
             T.RandomVerticalFlip(0.5),
             RandomGaussianBlur(0.5, (5, 9), (0.1, 5)),
@@ -96,7 +96,7 @@ def main(args):
         ])
 
         if args.train:
-            valSet = CocoDataset(img_path, valCocoPath, transform=T.Compose([T.Resize(640)]))
+            valSet = CocoDataset(img_path, valCocoPath, transform=T.Compose([T.Resize(800)]))
         else:
             valSet = CocoDataset(img_path, valCocoPath)
         trainSet = CocoDataset(img_path, trainCocoPath, transforms = transform)
