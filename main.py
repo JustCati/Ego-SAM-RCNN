@@ -12,8 +12,9 @@ from src.dataset.coco import convert_to_coco
 from src.dataset.create_masks import generate_masks
 from src.utils.utils import get_device, fix_random_seed, worker_reset_seed
 
-from src.graphs.graphs import plotSample
+from src.utils.demo import demo
 from src.dataset.dataloader import CocoDataset
+from src.graphs.graphs import plotSample, plotDemo
 from src.transform.transform import RandomGaussianBlur, GaussianNoise
 
 import torch
@@ -174,6 +175,45 @@ def main(args):
     else:
         raise ValueError("No model checkpoint found")
 
+    #* --------------- Plot inferenced example -----------------
+    if args.demo:
+        MASK_THRESHOLD = 0.5
+        BBOX_THRESHOLD = 0.5
+        if not args.save:
+            for _ in range(3):
+                (img, target) = valSet[torch.randint(0, len(valSet), (1,))]
+
+                cfg = {
+                    "model" : model,
+                    "img" : img,
+                    "target" : target,
+                    "MASK_THRESHOLD" : MASK_THRESHOLD,
+                    "BBOX_THRESHOLD" : BBOX_THRESHOLD,
+                    "device" : device
+                }
+                pred = demo(**cfg)
+                plotDemo(**pred)
+                del pred
+                del cfg
+        else:
+            demoPath = os.path.join(modelOutputPath, "demo")
+            if not os.path.exists(demoPath):
+                os.makedirs(demoPath)
+            for idx, (img, target) in enumerate(valSet):
+                cfg = {
+                    "model" : model,
+                    "img" : img,
+                    "target" : target,
+                    "MASK_THRESHOLD" : MASK_THRESHOLD,
+                    "BBOX_THRESHOLD" : BBOX_THRESHOLD,
+                    "device" : device
+                }
+                pred = demo(**cfg)
+                outPath = os.path.join(demoPath, f"demo_{idx}.png")
+                plotDemo(**pred, save=True, path=outPath)
+                del pred
+                del cfg
+    #* ----------------------------------------------------
 
 
 if __name__ == "__main__":
