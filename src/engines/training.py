@@ -48,7 +48,7 @@ def train_one_epoch(model, loader, optimizer, lr_scheduler, tb_writer: SummaryWr
         loss.backward()
         optimizer.step()
         lr_scheduler.step()
-        # torch.cuda.empty_cache()
+        torch.cuda.empty_cache()
     return
 
 

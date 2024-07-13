@@ -50,7 +50,7 @@ def evaluate_one_epoch(model, loader, cocoGT, predPath, tb_writer: SummaryWriter
                         "segmentation": mask,
                         "score": round(score, 2)
                     })
-            # torch.cuda.empty_cache()
+            torch.cuda.empty_cache()
 
         #* --------------- Save Prediction File ----------------
 
