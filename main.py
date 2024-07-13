@@ -124,41 +124,53 @@ def main(args):
 
     #* --------------- Train the model -----------------
 
-    if args.train:
-        curr_epoch = 0
-        num_classes = valSet.get_num_classes()
-        EPOCHS = args.epochs if args.epochs > 0 else 10
-        tb_writer = SummaryWriter(os.path.join(modelOutputPath, "logs"))
+    curr_epoch = 0
+    num_classes = valSet.get_num_classes()
+    EPOCHS = args.epochs if args.epochs > 0 else 10
+    tb_writer = SummaryWriter(os.path.join(modelOutputPath, "logs"))
 
-        device = get_device()
-        model = MaskRCNN(num_classes, pretrained = True, weights = "DEFAULT", backbone_weights = "DEFAULT")
-        model.to(device)
+    device = get_device()
+    model = MaskRCNN(num_classes, pretrained = True, weights = "DEFAULT", backbone_weights = "DEFAULT")
+    model.to(device)
 
-        if args.train or args.resume != "":
-            print("\nTraining model")
+    if args.train or args.resume != "":
+        print("\nTraining model")
 
-            params = [p for p in model.parameters() if p.requires_grad]
-            optimizer = torch.optim.AdamW(params, lr=1e-4, weight_decay=0.001)
-            lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=1, T_mult=2)
-            checkpointer = Checkpointer(args.resume if args.resume != "" else modelOutputPath, phase = 'train')
+        params = [p for p in model.parameters() if p.requires_grad]
+        optimizer = torch.optim.AdamW(params, lr=1e-4, weight_decay=0.001)
+        lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=1, T_mult=2)
+        checkpointer = Checkpointer(args.resume if args.resume != "" else modelOutputPath, phase = 'train')
 
-            if args.resume != "" and os.path.exists(args.resume) and os.path.isfile(args.resume):
-                print("Most recent trained model found, continuing training...")
-                model, optimizer, lr_scheduler, curr_epoch = checkpointer.load(model, optimizer, lr_scheduler)
-                model.to(device)
+        if args.resume != "" and os.path.exists(args.resume) and os.path.isfile(args.resume):
+            print("Most recent trained model found, continuing training...")
+            model, optimizer, lr_scheduler, curr_epoch = checkpointer.load(model, optimizer, lr_scheduler)
+            model.to(device)
 
-            cfg = {
-                "model" : model,
-                "optimizer" : optimizer,
-                "lr_scheduler" : lr_scheduler,
-                "curr_epoch" : curr_epoch,
-                "epoch" : curr_epoch + (EPOCHS - curr_epoch),
-                "trainDataloader" : trainDataloader,
-                "valDataloader" : valDataloader,
-                "tb_writer" : tb_writer,
-                "checkpointer" : checkpointer,
-            }
-            train(cfg)
+        cfg = {
+            "model" : model,
+            "optimizer" : optimizer,
+            "lr_scheduler" : lr_scheduler,
+            "curr_epoch" : curr_epoch,
+            "epoch" : curr_epoch + (EPOCHS - curr_epoch),
+            "trainDataloader" : trainDataloader,
+            "valDataloader" : valDataloader,
+            "tb_writer" : tb_writer,
+            "checkpointer" : checkpointer,
+        }
+        train(cfg)
+    elif args.eval != "":
+        if os.path.exists(os.path.join(modelOutputPath, args.eval)):
+            model, *_ = Checkpointer(modelOutputPath, phase = 'eval').load(model, None, None)
+    elif args.demo != "":
+        if os.path.exists(os.path.join(modelOutputPath, args.demo)):
+            model, *_ = Checkpointer(modelOutputPath, phase = 'eval').load(model, None, None)
+    elif args.perf != "":
+        if os.path.exists(os.path.join(modelOutputPath, args.perf)):
+            model, _, _, epoch = Checkpointer(modelOutputPath, phase = 'train').load(model, None, None)
+            bbox_perf, mask_perf = Checkpointer.perf_box, Checkpointer.perf_mask
+    else:
+        raise ValueError("No model checkpoint found")
+
 
 
 if __name__ == "__main__":
