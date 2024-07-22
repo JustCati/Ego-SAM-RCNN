@@ -2,13 +2,14 @@ import os
 import time
 import argparse
 import datetime
+import os.path as osp
 
 from src.model.model import MaskRCNN
 from src.utils.checkpointer import Checkpointer
 
 from src.engines.training import train
 
-from src.dataset.coco import convert_to_coco
+from src.dataset.coco import unify_cocos
 from src.dataset.create_masks import generate_masks
 from src.utils.utils import get_device, fix_random_seed, worker_reset_seed
 
@@ -28,44 +29,37 @@ from torch.utils.tensorboard import SummaryWriter
 
 def main(args):
     path = args.path
-    if not os.path.exists(path):
+    if not osp.exists(path):
         raise FileNotFoundError(f"Path {path} does not exist")
-
-    img_path = os.path.join(path, "images")
-    if not os.path.exists(path):
-        raise ValueError(f"Path {path} does not exist")
 
     modelOutputPath = ""
     if args.train and not args.resume:
-        modelOutputPath = os.path.join(os.getcwd(), "ckpts", "sammask_rcnn_" + str(datetime.datetime.fromtimestamp(int(time.time()))))
-        if not os.path.exists(modelOutputPath):
+        modelOutputPath = osp.join(os.getcwd(), "ckpts", "sammask_rcnn_" + str(datetime.datetime.fromtimestamp(int(time.time()))))
+        if not osp.exists(modelOutputPath):
             os.makedirs(modelOutputPath)
     elif args.resume:
-        modelOutputPath = os.path.dirname(args.resume)
+        modelOutputPath = osp.dirname(args.resume)
     elif args.perf or args.eval or args.demo:
         if args.perf:
-            modelOutputPath = os.path.dirname(args.perf)
+            modelOutputPath = osp.dirname(args.perf)
         elif args.eval:
-            modelOutputPath = os.path.dirname(args.eval)
+            modelOutputPath = osp.dirname(args.eval)
         elif args.demo:
-            modelOutputPath = os.path.dirname(args.demo)
+            modelOutputPath = osp.dirname(args.demo)
 
-    if not os.path.exists(modelOutputPath) and not args.sample:
+    if not osp.exists(modelOutputPath) and not args.sample:
         raise ValueError(f"Path {modelOutputPath} does not exist")
 
 
     #* Check if dataset annotations json file is already preprocessed
-    cocoDirPath = os.path.join(os.path.dirname(path), "COCO")
-    if not os.path.exists(cocoDirPath):
+    cocoDirPath = osp.join(osp.dirname(path), "COCO")
+    if not osp.exists(cocoDirPath):
         os.makedirs(cocoDirPath)
-    if not os.path.exists(os.path.join(cocoDirPath, "ood_coco_all.json")) and not os.path.exists(os.path.join(cocoDirPath, "images")):
-        unify_cocos(path, os.path.join(cocoDirPath, "annotations", "ood_coco_all.json"))
-    annoPath = os.path.join(cocoDirPath, "annotations")
+    if not osp.exists(osp.join(cocoDirPath, "ood_coco_all.json")) and not osp.exists(osp.join(cocoDirPath, "images")):
+        unify_cocos(path, osp.join(cocoDirPath, "annotations", "ood_coco_all.json"))
 
-    for split in ["eval", "train"]:
-        #* Convert to COCO if necessary
-        src_json = os.path.join(annoPath, f"ego_objects_{split}.json")
-        dst_coco = os.path.join(cocoPath, f"ego_objects_coco_{split}.json")
+    annoPath = osp.join(cocoDirPath, "annotations")
+    if not osp.exists(osp.join(annoPath)):
 
         if not os.path.exists(cocoPath):
             os.makedirs(cocoPath)

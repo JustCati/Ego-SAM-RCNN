@@ -1,13 +1,14 @@
 import os
 import json
 import shutil
+import os.path as osp
 from pycocotools.coco import COCO
 
 
 
 def unify_cocos(src_dir_path, dst_dir_path):
-    dst_img_path = os.path.join(os.path.dirname(dst_dir_path), "images")
-    if not os.path.exists(dst_img_path):
+    dst_img_path = osp.join(osp.dirname(dst_dir_path), "images")
+    if not osp.exists(dst_img_path):
         os.makedirs(dst_img_path)
 
     newJson = {
@@ -24,8 +25,8 @@ def unify_cocos(src_dir_path, dst_dir_path):
             "annotations": {},
             "categories": {}
         }
-        img_path = os.path.join(src_dir_path, folder, "val2017")
-        ann_file = os.path.join(src_dir_path, folder, "annotations", "instances_val2017.json")
+        img_path = osp.join(src_dir_path, folder, "val2017")
+        ann_file = osp.join(src_dir_path, folder, "annotations", "instances_val2017.json")
 
         coco = COCO(ann_file)
         for img in coco.dataset["images"]:
@@ -33,8 +34,8 @@ def unify_cocos(src_dir_path, dst_dir_path):
             mapping["images"][img["id"]] = new_id
 
             new_name = f"{id_counter:012}.jpg"
-            new_path = os.path.join(dst_img_path, new_name)
-            shutil.copyfile(os.path.join(img_path, img["file_name"]), new_path)
+            new_path = osp.join(dst_img_path, new_name)
+            shutil.copyfile(osp.join(img_path, img["file_name"]), new_path)
 
             new = img.copy()
             new["id"] = new_id

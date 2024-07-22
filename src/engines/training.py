@@ -1,5 +1,6 @@
 import os
 import torch
+import os.path as osp
 from tqdm import tqdm
 from .evaluating import evaluate_one_epoch
 
@@ -68,7 +69,7 @@ def train(cfg):
     #* --------------------------------------------
 
     cocoGT = valLoader.dataset.coco
-    predPath = os.path.join(os.path.dirname(valLoader.dataset.annfile), "results.json")
+    predPath = osp.join(osp.dirname(valLoader.dataset.annfile), "results.json")
 
     #* --------------- Train and Evaluate ----------------
     print("\nStart training model...")
