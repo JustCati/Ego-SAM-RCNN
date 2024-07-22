@@ -55,10 +55,12 @@ def main(args):
 
 
     #* Check if dataset annotations json file is already preprocessed
-    device = get_device()
-    annoPath = os.path.join(path, "annotations")
-    cocoPath = os.path.join(os.path.dirname(path), "COCO")
-    metadataPath = os.path.join(annoPath, "ego_objects_metadata.json")
+    cocoDirPath = os.path.join(os.path.dirname(path), "COCO")
+    if not os.path.exists(cocoDirPath):
+        os.makedirs(cocoDirPath)
+    if not os.path.exists(os.path.join(cocoDirPath, "ood_coco_all.json")) and not os.path.exists(os.path.join(cocoDirPath, "images")):
+        unify_cocos(path, os.path.join(cocoDirPath, "annotations", "ood_coco_all.json"))
+    annoPath = os.path.join(cocoDirPath, "annotations")
 
     for split in ["eval", "train"]:
         #* Convert to COCO if necessary
