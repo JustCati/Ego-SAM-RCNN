@@ -1,6 +1,7 @@
 import os
 import json
 import shutil
+import random
 import os.path as osp
 from pycocotools.coco import COCO
 
@@ -65,3 +66,41 @@ def unify_cocos(src_dir_path, dst_dir_path):
 
     with open(dst_dir_path, "w") as f:
         json.dump(newJson, f)
+
+
+def split_coco(src_json, dst_dir):
+    coco = COCO(src_json)
+    length = len(coco.dataset["images"])
+    perc_75 = int(length * 0.75)
+    indices = list(range(length))
+
+    random.Random(4).shuffle(indices)
+    train_indices = indices[:perc_75]
+    val_indices = indices[perc_75:]
+
+    train_json = {
+        "images": [],
+        "annotations": [],
+        "categories": coco.dataset["categories"]
+    }
+    val_json = {
+        "images": [],
+        "annotations": [],
+        "categories": coco.dataset["categories"]
+    }
+
+    for idx in train_indices:
+        train_json["images"].append(coco.dataset["images"][idx])
+        for ann in coco.imgToAnns[idx]:
+            train_json["annotations"].append(ann)
+    
+    for idx in val_indices:
+        val_json["images"].append(coco.dataset["images"][idx])
+        for ann in coco.imgToAnns[idx]:
+            val_json["annotations"].append(ann)
+
+    name = osp.basename(src_json).split(".")[0].replace("_all", "")
+    with open(osp.join(dst_dir, f"{name}_train.json"), "w") as f:
+        json.dump(train_json, f)
+    with open(osp.join(dst_dir, f"{name}_eval.json"), "w") as f:
+        json.dump(val_json, f)

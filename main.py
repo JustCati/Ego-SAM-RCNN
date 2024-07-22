@@ -59,7 +59,8 @@ def main(args):
         unify_cocos(path, osp.join(cocoDirPath, "annotations", "ood_coco_all.json"))
 
     annoPath = osp.join(cocoDirPath, "annotations")
-    if not osp.exists(osp.join(annoPath)):
+    if not osp.exists(osp.join(annoPath, "ood_coco_train.json")) and not osp.exists(osp.join(annoPath, "ood_coco_eval.json")):
+        split_coco(osp.join(annoPath, "ood_coco_all.json"), annoPath)
 
         if not os.path.exists(cocoPath):
             os.makedirs(cocoPath)
