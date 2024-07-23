@@ -64,7 +64,7 @@ def main(args):
 
     for split in ["eval", "train"]:
         #* Generate masks if necessary
-        dst_coco = osp.join(annoPath, f"ood_coco_unified_all_unified_{split}.json")
+        dst_coco = osp.join(annoPath, f"ood_coco_all_unified_{split}.json")
         if not osp.exists(dst_coco):
             device = get_device()
             sam_path = osp.join(os.getcwd(), "sam-checkpoints", "sam_vit_h.pth")
@@ -113,7 +113,8 @@ def main(args):
         print("Length of val dataloader: ", len(valDataloader))
 
     if args.sample:
-        plotSample(valSet, valCocoPath) #! pass the coco json for categories
+        plotSample(valSet, valCocoPath)
+        exit()
 
     #* ----------------------------------------------------
 
@@ -123,7 +124,7 @@ def main(args):
     curr_epoch = 0
     num_classes = valSet.get_num_classes()
     EPOCHS = args.epochs if args.epochs > 0 else 10
-    tb_writer = SummaryWriter(os.path.join(modelOutputPath, "logs"))
+    tb_writer = SummaryWriter(osp.join(modelOutputPath, "logs"))
 
     device = get_device()
     model = MaskRCNN(num_classes, pretrained = True, weights = "DEFAULT", backbone_weights = "DEFAULT")
@@ -137,7 +138,7 @@ def main(args):
         lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=1, T_mult=2)
         checkpointer = Checkpointer(args.resume if args.resume != "" else modelOutputPath, phase = 'train')
 
-        if args.resume != "" and os.path.exists(args.resume) and os.path.isfile(args.resume):
+        if args.resume != "" and osp.exists(args.resume) and osp.isfile(args.resume):
             print("Most recent trained model found, continuing training...")
             model, optimizer, lr_scheduler, curr_epoch = checkpointer.load(model, optimizer, lr_scheduler)
             model.to(device)
@@ -155,13 +156,13 @@ def main(args):
         }
         train(cfg)
     elif args.eval != "":
-        if os.path.exists(os.path.join(modelOutputPath, args.eval)):
+        if osp.exists(osp.join(modelOutputPath, args.eval)):
             model, *_ = Checkpointer(modelOutputPath, phase = 'eval').load(model, None, None)
     elif args.demo != "":
-        if os.path.exists(os.path.join(modelOutputPath, args.demo)):
+        if osp.exists(osp.join(modelOutputPath, args.demo)):
             model, *_ = Checkpointer(modelOutputPath, phase = 'eval').load(model, None, None)
     elif args.perf != "":
-        if os.path.exists(os.path.join(modelOutputPath, args.perf)):
+        if osp.exists(osp.join(modelOutputPath, args.perf)):
             model, _, _, epoch = Checkpointer(modelOutputPath, phase = 'train').load(model, None, None)
             bbox_perf, mask_perf = Checkpointer.perf_box, Checkpointer.perf_mask
     else:
@@ -188,8 +189,8 @@ def main(args):
                 del pred
                 del cfg
         else:
-            demoPath = os.path.join(modelOutputPath, "demo")
-            if not os.path.exists(demoPath):
+            demoPath = osp.join(modelOutputPath, "demo")
+            if not osp.exists(demoPath):
                 os.makedirs(demoPath)
             for idx, (img, target) in enumerate(valSet):
                 cfg = {
@@ -201,7 +202,7 @@ def main(args):
                     "device" : device
                 }
                 pred = demo(**cfg)
-                outPath = os.path.join(demoPath, f"demo_{idx}.png")
+                outPath = osp.join(demoPath, f"demo_{idx}.png")
                 plotDemo(**pred, save=True, path=outPath)
                 del pred
                 del cfg
@@ -209,8 +210,8 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="EgoObject Istance Segmentation with SAMASK-RCNN")
-    parser.add_argument("--path", type=str, default=os.path.join(os.getcwd(), "data", "EgoObjects"), help="Path to the data directory")
+    parser = argparse.ArgumentParser(description="Coco-O(ut of distribution) Istance Segmentation with SAMASK-RCNN")
+    parser.add_argument("--path", type=str, default=osp.join(os.getcwd(), "data", "OOD-COCO", "OOD-COCO"), help="Path to the data directory")
     parser.add_argument("--sample", action="store_true", default=False, help="Plot a sample image from the dataset with ground truth masks")
     parser.add_argument("--train", action="store_true", default=False, help="Force Training of the model")
     parser.add_argument("--batch_size", type=int, default=1, help="Batch size for training")
