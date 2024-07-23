@@ -72,8 +72,9 @@ def main(args):
             generate_masks(dst_coco.replace("_all", ""), osp.join(cocoDirPath, "images"), sam_path, device = device)
 
 
-    valCocoPath = os.path.join(cocoPath, "ego_objects_coco_all_eval.json")
-    trainCocoPath = os.path.join(cocoPath, "ego_objects_coco_all_train.json")
+    img_path = osp.join(cocoDirPath, "images")
+    valCocoPath = osp.join(annoPath, "ood_coco_unified_all_eval.json")
+    trainCocoPath = osp.join(annoPath, "ood_coco_unified_all_train.json")
 
     #* --------------- Create Dataset -----------------
 
@@ -83,17 +84,13 @@ def main(args):
 
         #! Uncomment Gaussian Noise but performance will suffer a lot
         transform = T.Compose([
-            T.Resize(800),
             T.RandomHorizontalFlip(0.5),
             T.RandomVerticalFlip(0.5),
             RandomGaussianBlur(0.5, (5, 9), (0.1, 5)),
             # GaussianNoise(p = 0.5, noise_p = 0.07, mean = 0, sigma = 5),
         ])
 
-        if args.train:
-            valSet = CocoDataset(img_path, valCocoPath, transform=T.Compose([T.Resize(800)]))
-        else:
-            valSet = CocoDataset(img_path, valCocoPath)
+        valSet = CocoDataset(img_path, valCocoPath)
         trainSet = CocoDataset(img_path, trainCocoPath, transforms = transform)
 
         trainDataloader = data.DataLoader(trainSet, 
@@ -116,7 +113,7 @@ def main(args):
         print("Length of val dataloader: ", len(valDataloader))
 
     if args.sample:
-        plotSample(valSet, metadataPath)
+        plotSample(valSet, valCocoPath) #! pass the coco json for categories
 
     #* ----------------------------------------------------
 
