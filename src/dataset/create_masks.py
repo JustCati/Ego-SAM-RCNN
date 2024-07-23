@@ -71,4 +71,4 @@ def generate_masks(cocoPath, imgPath, sam_path = None, device = "cuda"):
             cocoJSON["annotations"][ann_idx]["segmentation"] = rle
 
     with open(cocoPath.replace("coco", "coco_all"), "w") as f:
-        json.dump(cocoJSON, f)
+        json.dump(cocoJSON, f, indent=4)
