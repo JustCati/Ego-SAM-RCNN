@@ -9,8 +9,8 @@ from src.utils.checkpointer import Checkpointer
 
 from src.engines.training import train
 
-from src.dataset.coco import unify_cocos
 from src.dataset.create_masks import generate_masks
+from src.dataset.coco import unify_cocos, split_coco
 from src.utils.utils import get_device, fix_random_seed, worker_reset_seed
 
 from src.utils.demo import demo
@@ -62,17 +62,15 @@ def main(args):
     if not osp.exists(osp.join(annoPath, "ood_coco_train.json")) and not osp.exists(osp.join(annoPath, "ood_coco_eval.json")):
         split_coco(osp.join(annoPath, "ood_coco_unified.json"), annoPath)
 
-        if not os.path.exists(cocoPath):
-            os.makedirs(cocoPath)
-        if not os.path.exists(dst_coco):
-            print("Converting to COCO format for split: ", split)
-            convert_to_coco(src_json, metadataPath, dst_coco)
-
+    for split in ["eval", "train"]:
         #* Generate masks if necessary
-        if not os.path.exists(dst_coco.replace("coco", "coco_all")):
-            sam_path = os.path.join(os.getcwd(), "sam-checkpoints", "sam_vit_h.pth")
+        dst_coco = osp.join(annoPath, f"ood_coco_unified_all_{split}.json")
+        if not osp.exists(dst_coco):
+            device = get_device()
+            sam_path = osp.join(os.getcwd(), "sam-checkpoints", "sam_vit_h.pth")
             print("Genereting masks for split: ", split)
-            generate_masks(dst_coco, img_path, sam_path, device = device)
+            generate_masks(dst_coco.replace("_all", ""), osp.join(cocoDirPath, "images"), sam_path, device = device)
+
 
     valCocoPath = os.path.join(cocoPath, "ego_objects_coco_all_eval.json")
     trainCocoPath = os.path.join(cocoPath, "ego_objects_coco_all_train.json")
