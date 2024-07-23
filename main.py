@@ -73,8 +73,8 @@ def main(args):
 
 
     img_path = osp.join(cocoDirPath, "images")
-    valCocoPath = osp.join(annoPath, "ood_coco_unified_all_eval.json")
-    trainCocoPath = osp.join(annoPath, "ood_coco_unified_all_train.json")
+    valCocoPath = osp.join(annoPath, "ood_coco_all_unified_eval.json")
+    trainCocoPath = osp.join(annoPath, "ood_coco_all_unified_train.json")
 
     #* --------------- Create Dataset -----------------
 
