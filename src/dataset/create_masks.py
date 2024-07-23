@@ -66,7 +66,9 @@ def generate_masks(cocoPath, imgPath, sam_path = None, device = "cuda"):
             mask = mask.cpu().numpy()
             mask = np.asfortranarray(mask)
             ann_idx = annMap[anns_ids[i]]
-            cocoJSON["annotations"][ann_idx]["segmentation"] = encode(mask)
+            rle = encode(mask)
+            rle["counts"] = rle["counts"].decode("utf-8")
+            cocoJSON["annotations"][ann_idx]["segmentation"] = rle
 
     with open(cocoPath.replace("coco", "coco_all"), "w") as f:
         json.dump(cocoJSON, f)
