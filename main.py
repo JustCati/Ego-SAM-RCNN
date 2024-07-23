@@ -113,7 +113,7 @@ def main(args):
         print("Length of val dataloader: ", len(valDataloader))
 
     if args.sample:
-        plotSample(valSet, valCocoPath)
+        plotSample(valSet)
         exit()
 
     #* ----------------------------------------------------

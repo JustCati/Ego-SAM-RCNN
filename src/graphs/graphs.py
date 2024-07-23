@@ -1,14 +1,14 @@
 import json
 import torch
 import matplotlib.pyplot as plt
+from pycocotools.coco import COCO
 from torchvision.transforms import transforms
 from torchvision.utils import draw_segmentation_masks, draw_bounding_boxes
 
 
 
-def plotSample(dataset, metadata):
-    with open(metadata, "r") as f:
-        metadata = json.load(f)
+def plotSample(dataset):
+    coco = dataset.coco
     (img, target) = dataset[torch.randint(0, len(dataset), (1,))]
 
     plt.figure(figsize=(10, 8))
@@ -26,8 +26,9 @@ def plotSample(dataset, metadata):
     img = (img * 255).type(torch.uint8)
     boxes = target["boxes"].reshape(-1, 4)
     labels = target["labels"]
-    labels = [metadata["categories"][label.item()]["name"] for label in labels]
-    img = draw_bounding_boxes(img, boxes, labels=labels, colors="red", width=7)
+    labels = [coco.cats[label.item()]["name"] for label in labels]
+    # labels = [metadata["categories"][label.item()]["name"] for label in labels]
+    img = draw_bounding_boxes(img, boxes, labels=labels, colors="red", width=7, font_size=30)
     img = draw_segmentation_masks(img, targetMasks, alpha=0.3, colors="yellow")
     img = img.permute(1, 2, 0)
     plt.imshow(img)
