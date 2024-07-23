@@ -64,7 +64,7 @@ def main(args):
 
     for split in ["eval", "train"]:
         #* Generate masks if necessary
-        dst_coco = osp.join(annoPath, f"ood_coco_unified_all_{split}.json")
+        dst_coco = osp.join(annoPath, f"ood_coco_unified_all_unified_{split}.json")
         if not osp.exists(dst_coco):
             device = get_device()
             sam_path = osp.join(os.getcwd(), "sam-checkpoints", "sam_vit_h.pth")
