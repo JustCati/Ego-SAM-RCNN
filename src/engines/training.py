@@ -14,13 +14,21 @@ def train_one_epoch(model, loader, optimizer, lr_scheduler, tb_writer: SummaryWr
 
     pbar = tqdm(loader, desc=f"Training epoch {epoch + 1}")
     for iter, target in enumerate(pbar):
+        try:
         #* --------------- Forward Pass ----------------
-        images, targets = target
-        images = list([image.to(device) for image in images])
-        targets = [{k: v.to(device) for k, v in elem.items()} for elem in targets]
+            images, targets = target
+            images = list([image.to(device) for image in images])
+            targets = [{k: v.to(device) for k, v in elem.items()} for elem in targets]
 
-        loss_dict = model(images, targets)
-        loss = sum(loss for loss in loss_dict.values())
+            loss_dict = model(images, targets)
+            loss = sum(loss for loss in loss_dict.values())
+        except RuntimeError as e:
+            if "CUDA out of memory" in str(e):
+                print("CUDA out of memory error detected. Retrying...")
+                torch.cuda.empty_cache()
+                continue
+            else:
+                raise e
 
         #* --------------- Log Losses to Tensorboard ----------------
         global_step = epoch * num_iters + iter

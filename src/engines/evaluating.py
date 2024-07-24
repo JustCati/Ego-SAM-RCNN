@@ -24,8 +24,16 @@ def evaluate_one_epoch(model, loader, cocoGT, predPath, tb_writer: SummaryWriter
             del targets
 
             #* --------------- Forward Pass ----------------
-            images = list([image.to(device) for image in images])
-            pred = model(images)
+            try:
+                images = list([image.to(device) for image in images])
+                pred = model(images)
+            except RuntimeError as e:
+                if "CUDA out of memory" in str(e):
+                    print("CUDA out of memory error detected. Retrying...")
+                    torch.cuda.empty_cache()
+                    continue
+                else:
+                    raise e
 
             #* --------------- Create Prediction File ----------------
             for i, elem in enumerate(pred):
