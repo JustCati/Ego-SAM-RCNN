@@ -17,7 +17,7 @@ def evaluate_one_epoch(model, loader, cocoGT, predPath, tb_writer: SummaryWriter
     box_results, mask_results = [], []
 
     with torch.no_grad():
-        pbar = tqdm(loader, desc=f"Validating epoch {epoch}")
+        pbar = tqdm(loader, desc=f"Validating epoch {epoch + 1}")
         for _, target in enumerate(pbar, start=1):
             images, targets = target
             img_ids = [elem["image_id"] for elem in targets]
