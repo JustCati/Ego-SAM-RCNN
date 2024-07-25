@@ -80,10 +80,11 @@ def unify_cocos(src_dir_path, dst_dir_path):
             new["category_id"] = ann["category_id"]
             newJson["annotations"].append(new)
             ann_counter += 1
-
     
     with open(dst_dir_path, "w") as f:
         json.dump(newJson, f, indent=4)
+
+    remap_categories(dst_dir_path, dst_dir_path)
 
 
 def split_coco(src_json, dst_dir):
@@ -126,3 +127,26 @@ def split_coco(src_json, dst_dir):
         json.dump(train_json, f, indent=4)
     with open(osp.join(dst_dir, f"{name}_eval.json"), "w") as f:
         json.dump(val_json, f, indent=4)
+
+
+def remap_categories(json_file_path, output_file_path):
+    with open(json_file_path, 'r') as file:
+        data = json.load(file)
+
+    old_to_new_category_id = {}
+    new_id = 1
+    for category in data['categories']:
+        old_id = category['id']
+        old_to_new_category_id[old_id] = new_id
+        new_id += 1
+
+    for category in data['categories']:
+        category['id'] = old_to_new_category_id[category['id']]
+
+    for annotation in data['annotations']:
+        annotation['category_id'] = old_to_new_category_id[annotation['category_id']]
+
+    # Save the updated JSON to a new file
+    with open(output_file_path, 'w') as file:
+        json.dump(data, file, indent=4)
+
