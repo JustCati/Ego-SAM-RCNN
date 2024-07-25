@@ -17,7 +17,8 @@ def unify_cocos(src_dir_path, dst_dir_path):
         "annotations": [],
         "categories": []
     }
-    id_counter, ann_counter, cat_counter = 1, 1, 1
+    cat = False
+    id_counter, ann_counter = 1, 1
 
     for folder in os.listdir(src_dir_path):
         # Check if folder is named "images"
@@ -26,8 +27,7 @@ def unify_cocos(src_dir_path, dst_dir_path):
         print(f"Processing {folder}...")
         mapping = {
             "images": {},
-            "annotations": {},
-            "categories": {}
+            "annotations": {}
         }
         img_path = osp.join(src_dir_path, folder, "val2017")
         ann_file = osp.join(src_dir_path, folder, "annotations", "instances_val2017.json")
@@ -37,7 +37,10 @@ def unify_cocos(src_dir_path, dst_dir_path):
             continue
 
         coco = COCO(ann_file)
-        
+        if not cat:
+            newJson["categories"] = coco.dataset["categories"]
+            cat = True
+
         # Process images
         for img in coco.dataset["images"]:
             new_id = id_counter
@@ -59,24 +62,14 @@ def unify_cocos(src_dir_path, dst_dir_path):
             newJson["images"].append(new)
             id_counter += 1
 
-        # Process categories
-        for cat in coco.dataset["categories"]:
-            new_id = cat_counter
-            mapping["categories"][cat["id"]] = new_id
-
-            new = cat.copy()
-            new["id"] = new_id
-            newJson["categories"].append(new)
-            cat_counter += 1
-
         # Process annotations
         for ann in coco.dataset["annotations"]:
             if ann["image_id"] not in mapping["images"]:
                 print(f"Annotation with image_id {ann['image_id']} is missing in the images list.")
                 continue
-            if ann["category_id"] not in mapping["categories"]:
-                print(f"Annotation with category_id {ann['category_id']} is missing in the categories list.")
-                continue
+            # if ann["category_id"] not in mapping["categories"]:
+            #     print(f"Annotation with category_id {ann['category_id']} is missing in the categories list.")
+            #     continue
 
             new_id = ann_counter
             mapping["annotations"][ann["id"]] = new_id
@@ -84,12 +77,14 @@ def unify_cocos(src_dir_path, dst_dir_path):
             new = ann.copy()
             new["id"] = new_id
             new["image_id"] = mapping["images"][ann["image_id"]]
-            new["category_id"] = mapping["categories"][ann["category_id"]]
+            new["category_id"] = ann["category_id"]
             newJson["annotations"].append(new)
             ann_counter += 1
 
+    
     with open(dst_dir_path, "w") as f:
         json.dump(newJson, f, indent=4)
+
 
 def split_coco(src_json, dst_dir):
     coco = COCO(src_json)
@@ -118,7 +113,7 @@ def split_coco(src_json, dst_dir):
         if img["id"] in coco.imgToAnns:
             for ann in coco.imgToAnns[img["id"]]:
                 train_json["annotations"].append(ann)
-    
+
     for idx in val_indices:
         img = coco.dataset["images"][idx]
         val_json["images"].append(img)
