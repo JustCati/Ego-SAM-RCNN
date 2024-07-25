@@ -87,6 +87,7 @@ def evaluate_one_epoch(model, loader, cocoGT, predPath, tb_writer: SummaryWriter
                 "segm_map": segm_map[0]
             }
             tb_writer.add_scalars("val/map", maps, epoch)
+            # tb_writer.add_scalars("val/map", maps, epoch + 1)
 
         print("[Validation] Epoch: {:03d} Segmentation mAP: {:.2f}, Bounding Box mAP: {:.2f}".format(epoch, segm_map[0], bbox_map[0]))
         print()
