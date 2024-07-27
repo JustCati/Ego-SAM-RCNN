@@ -38,24 +38,24 @@ def plotSample(dataset):
 
 
 
-def plotDemo(img, target, prediction, save = False, path = None):
-    plt.subplot(1, 3, 1)
-    plt.axis('off')
-    plt.imshow(transforms.ToPILImage()(img), aspect='auto')
-
-    plt.subplot(1, 3, 2)
+def plotDemo(img, target, prediction, coco, save = False, path = None):
+    plt.subplot(1, 2, 1)
     image = (img * 255).type(torch.uint8)
     targetMasks = target["masks"].type(torch.bool).reshape(-1, img.shape[-2], img.shape[-1])
     image = draw_segmentation_masks(image, targetMasks, alpha=0.5, colors="yellow")
-    image = draw_bounding_boxes(image, target["boxes"], colors="white", width=3)
+    image = draw_bounding_boxes(image, target["boxes"], colors="green", width=3)
     plt.imshow(transforms.ToPILImage()(image), aspect='auto')
     plt.axis('off')
 
-    plt.subplot(1, 3, 3)
+    plt.subplot(1, 2, 2)
     img = (img * 255).type(torch.uint8)
     masks = prediction["masks"].type(torch.bool).reshape(-1, img.shape[-2], img.shape[-1])
-    img = draw_bounding_boxes(img, target["boxes"], colors="white", width=3)
-    img = draw_bounding_boxes(img, prediction["boxes"], colors="red", width=3)
+    targetLabels = target["labels"]
+    targetLabels = [coco.cats[label.item()]["name"] for label in targetLabels]
+    predLabels = prediction["labels"]
+    predLabels = [coco.cats[label.item()]["name"] for label in predLabels]
+    img = draw_bounding_boxes(img, target["boxes"], labels=targetLabels, colors="green", width=3, font_size=30, font="Verdana.ttf")
+    img = draw_bounding_boxes(img, prediction["boxes"], labels=predLabels, colors="red", width=3, font_size=30, font="Verdana.ttf")
     img = draw_segmentation_masks(img.type(torch.uint8), masks, alpha=0.5, colors="red")
     plt.imshow(transforms.ToPILImage()(img), aspect='auto')
     plt.axis('off')
