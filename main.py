@@ -4,7 +4,7 @@ import argparse
 import datetime
 import os.path as osp
 
-from src.model.model import MaskRCNN
+from src.model.model import getModel
 from src.utils.checkpointer import Checkpointer
 
 from src.engines.training import train
@@ -91,7 +91,7 @@ def main(args):
         transform = T.Compose([
             T.RandomHorizontalFlip(0.5),
             T.RandomVerticalFlip(0.5),
-            RandomGaussianBlur(0.5, (5, 9), (0.1, 5)),
+            # RandomGaussianBlur(0.5, (5, 9), (0.1, 5)),
             # GaussianNoise(p = 0.5, noise_p = 0.07, mean = 0, sigma = 5),
         ])
 
@@ -132,7 +132,7 @@ def main(args):
     tb_writer = SummaryWriter(osp.join(modelOutputPath, "logs"))
 
     device = get_device()
-    model = MaskRCNN(num_classes, pretrained = True, weights = "DEFAULT", backbone_weights = "DEFAULT")
+    model = getModel(num_classes)
     model.to(device)
 
     if args.train or args.resume != "":
@@ -140,7 +140,7 @@ def main(args):
 
         params = [p for p in model.parameters() if p.requires_grad]
         optimizer = torch.optim.AdamW(params, lr=1e-4, weight_decay=0.001)
-        lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=1, T_mult=2)
+        lr_scheduler = torch.optim.lr_scheduler.CosineAnnealingWarmRestarts(optimizer, T_0=1)
         checkpointer = Checkpointer(args.resume if args.resume != "" else modelOutputPath, phase = 'train')
 
         if args.resume != "" and osp.exists(args.resume) and osp.isfile(args.resume):
@@ -158,6 +158,7 @@ def main(args):
             "valDataloader" : valDataloader,
             "tb_writer" : tb_writer,
             "checkpointer" : checkpointer,
+            "device" : device
         }
         train(cfg)
     elif args.eval != "":
