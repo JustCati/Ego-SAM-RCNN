@@ -7,9 +7,8 @@ from .evaluating import evaluate_one_epoch
 from torch.utils.tensorboard import SummaryWriter
 
 
-def train_one_epoch(model, loader, optimizer, lr_scheduler, tb_writer: SummaryWriter, epoch):
+def train_one_epoch(model, loader, optimizer, lr_scheduler, tb_writer: SummaryWriter, epoch, device):
     model.train()
-    device = model.device
     num_iters = len(loader)
 
     pbar = tqdm(loader, desc=f"Training epoch {epoch + 1}")
@@ -56,7 +55,7 @@ def train_one_epoch(model, loader, optimizer, lr_scheduler, tb_writer: SummaryWr
         optimizer.zero_grad()
         loss.backward()
         optimizer.step()
-        lr_scheduler.step()
+        lr_scheduler.step(epoch + iter / num_iters)
         torch.cuda.empty_cache()
     return
 
@@ -73,6 +72,7 @@ def train(cfg):
     trainLoader = cfg["trainDataloader"]
     valLoader = cfg["valDataloader"]
     tb_writer = cfg["tb_writer"]
+    device = cfg["device"]
     checkpointer = cfg["checkpointer"]
     #* --------------------------------------------
 
@@ -88,14 +88,16 @@ def train(cfg):
                         optimizer,
                         lr_scheduler,
                         tb_writer,
-                        epoch)
+                        epoch,
+                        device)
         torch.cuda.empty_cache()
         bbox_map, segm_map = evaluate_one_epoch(model,
                             valLoader,
                             cocoGT,
                             predPath,
                             tb_writer,
-                            epoch)
+                            epoch,
+                            device)
 
         checkpointer.save(epoch + 1, model, optimizer, lr_scheduler, bbox_map, segm_map)
 
