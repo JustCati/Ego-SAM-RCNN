@@ -11,9 +11,8 @@ from src.evaluator.evaluator import Evaluator
 
 
 
-def evaluate_one_epoch(model, loader, cocoGT, predPath, tb_writer: SummaryWriter = None, epoch = 1):
+def evaluate_one_epoch(model, loader, cocoGT, predPath, tb_writer: SummaryWriter = None, epoch = -1, device = "cpu"):
     model.eval()
-    device = model.device
     box_results, mask_results = [], []
 
     with torch.no_grad():
@@ -30,6 +29,7 @@ def evaluate_one_epoch(model, loader, cocoGT, predPath, tb_writer: SummaryWriter
             except RuntimeError as e:
                 if "CUDA out of memory" in str(e):
                     print("CUDA out of memory error detected. Retrying...")
+                    print(f"Skipping image ids: {img_ids}")
                     torch.cuda.empty_cache()
                     continue
                 else:
