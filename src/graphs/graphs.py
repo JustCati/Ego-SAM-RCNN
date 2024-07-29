@@ -28,7 +28,7 @@ def plotSample(dataset):
     labels = target["labels"]
     labels = [coco.cats[label.item()]["name"] for label in labels]
     # labels = [metadata["categories"][label.item()]["name"] for label in labels]
-    img = draw_bounding_boxes(img, boxes, labels=labels, colors="red", width=7, font_size=30)
+    img = draw_bounding_boxes(img, boxes, labels=labels, colors="red", width=7, font_size=30, font="Verdana.ttf")
     img = draw_segmentation_masks(img, targetMasks, alpha=0.3, colors="yellow")
     img = img.permute(1, 2, 0)
     plt.imshow(img)
