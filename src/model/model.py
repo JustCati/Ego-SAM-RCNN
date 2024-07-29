@@ -7,37 +7,21 @@ from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 
 
 
+def getModel(num_classes):
+    model = maskrcnn_resnet50_fpn_v2(weights = "DEFAULT", backbone_weights = "DEFAULT")
 
-class MaskRCNN(nn.Module):
-    def __init__(self, num_classes, pretrained = True, weights = "DEFAULT", backbone_weights = "DEFAULT"):
-        super(MaskRCNN, self).__init__()
+    #* Change the number of output classes
+    in_features_box = model.roi_heads.box_predictor.cls_score.in_features
+    in_features_mask = model.roi_heads.mask_predictor.conv5_mask.in_channels
+    dim_reduced = model.roi_heads.mask_predictor.conv5_mask.out_channels
 
-        self.device = None
-        if pretrained:
-            self.model = maskrcnn_resnet50_fpn_v2(weights = weights, backbone_weights = backbone_weights)
-        else:
-            self.model = maskrcnn_resnet50_fpn_v2()
-
-        #* Change the number of output classes
-        in_features_box = self.model.roi_heads.box_predictor.cls_score.in_features
-        in_features_mask = self.model.roi_heads.mask_predictor.conv5_mask.in_channels
-        dim_reduced = self.model.roi_heads.mask_predictor.conv5_mask.out_channels
-
-        self.model.roi_heads.box_predictor = FastRCNNPredictor(
-            in_channels = in_features_box, 
-            num_classes = num_classes + 1
-        )
-        self.model.roi_heads.mask_predictor = MaskRCNNPredictor(
-            in_channels = in_features_mask, 
-            dim_reduced = dim_reduced, 
-            num_classes = num_classes + 1
-        )
-
-    def to(self, device):
-        self.model.to(device)
-        self.device = device
-        return self
-
-    #TODO: Change the forward method to implement nms
-    def forward(self, x, y = None):
-        return self.model(x, y)
+    model.roi_heads.box_predictor = FastRCNNPredictor(
+        in_channels = in_features_box, 
+        num_classes = num_classes + 1
+    )
+    model.roi_heads.mask_predictor = MaskRCNNPredictor(
+        in_channels = in_features_mask, 
+        dim_reduced = dim_reduced, 
+        num_classes = num_classes + 1
+    )
+    return model
