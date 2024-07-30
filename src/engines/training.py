@@ -52,10 +52,18 @@ def train_one_epoch(model, loader, optimizer, lr_scheduler, tb_writer: SummaryWr
         })
 
         #* --------------- Backward and Optimize ----------------
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
-        lr_scheduler.step(epoch + iter / num_iters)
+        try:
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
+            lr_scheduler.step(epoch + iter / num_iters)
+        except RuntimeError as e:
+            if "CUDA out of memory" in str(e):
+                print("CUDA out of memory error detected. Retrying...")
+                torch.cuda.empty_cache()
+                continue
+            else:
+                raise e
         torch.cuda.empty_cache()
     return
 
