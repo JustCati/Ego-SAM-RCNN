@@ -164,12 +164,16 @@ def main(args):
     elif args.eval != "":
         if osp.exists(osp.join(modelOutputPath, args.eval)):
             model, *_ = Checkpointer(modelOutputPath, phase = 'eval').load(model, None, None)
+            model.to(device)
     elif args.demo != "":
-        if osp.exists(osp.join(modelOutputPath, args.demo)):
-            model, *_ = Checkpointer(modelOutputPath, phase = 'eval').load(model, None, None)
+        if osp.exists(args.demo):
+            print("Model found, loading...")
+            model, *_ = Checkpointer(args.demo, phase = 'eval').load(model, None, None)
+            model.to(device)
     elif args.perf != "":
         if osp.exists(osp.join(modelOutputPath, args.perf)):
             model, _, _, epoch = Checkpointer(modelOutputPath, phase = 'train').load(model, None, None)
+            model.to(device)
             bbox_perf, mask_perf = Checkpointer.perf_box, Checkpointer.perf_mask
     else:
         raise ValueError("No model checkpoint found")
