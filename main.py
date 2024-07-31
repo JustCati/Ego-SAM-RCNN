@@ -89,7 +89,7 @@ def main(args):
         transform = T.Compose([
             T.RandomHorizontalFlip(0.5),
             T.RandomVerticalFlip(0.5),
-            # RandomGaussianBlur(0.5, (5, 9), (0.1, 5)),
+            RandomGaussianBlur(0.5, (5, 9), (0.1, 5)),
             # GaussianNoise(p = 0.5, noise_p = 0.07, mean = 0, sigma = 5),
         ])
 
