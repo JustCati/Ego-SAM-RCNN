@@ -181,7 +181,6 @@ def main(args):
     #* --------------- Plot inferenced example -----------------
     if args.demo:
         MASK_THRESHOLD = 0.5
-        BBOX_THRESHOLD = 0.5
         if not args.save:
             for _ in range(3):
                 (img, target) = valSet[torch.randint(0, len(valSet), (1,))]
@@ -191,11 +190,13 @@ def main(args):
                     "img" : img,
                     "target" : target,
                     "MASK_THRESHOLD" : MASK_THRESHOLD,
-                    "BBOX_THRESHOLD" : BBOX_THRESHOLD,
                     "device" : device
                 }
                 pred = demo(**cfg)
-                plotDemo(**pred)
+                if pred["prediction"]["boxes"].shape[0] == 0:
+                    print(f"No predictions on img {valSet.coco.imgs[target['image_id'].item()]['file_name']}")
+                    continue
+                plotDemo(**pred, coco = valSet.coco)
                 del pred
                 del cfg
         else:
@@ -208,7 +209,6 @@ def main(args):
                     "img" : img,
                     "target" : target,
                     "MASK_THRESHOLD" : MASK_THRESHOLD,
-                    "BBOX_THRESHOLD" : BBOX_THRESHOLD,
                     "device" : device
                 }
                 pred = demo(**cfg)
