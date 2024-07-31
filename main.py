@@ -205,7 +205,7 @@ def main(args):
                     "device" : device
                 }
                 pred = demo(**cfg)
-                outPath = osp.join(demoPath, f"demo_{idx}.png")
+                outPath = osp.join(demoPath, f"demo_{target["image_id"].item()}.png")
                 plotDemo(**pred, coco = valSet.coco, save=True, path=outPath)
                 del pred
                 del cfg
