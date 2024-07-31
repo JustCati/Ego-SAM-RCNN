@@ -39,10 +39,8 @@ def main(args):
             os.makedirs(modelOutputPath)
     elif args.resume:
         modelOutputPath = osp.dirname(args.resume)
-    elif args.perf or args.eval or args.demo:
-        if args.perf:
-            modelOutputPath = osp.dirname(args.perf)
-        elif args.eval:
+    elif args.eval or args.demo:
+        if args.eval:
             modelOutputPath = osp.dirname(args.eval)
         elif args.demo:
             modelOutputPath = osp.dirname(args.demo)
@@ -170,11 +168,6 @@ def main(args):
             print("Model found, loading...")
             model, *_ = Checkpointer(args.demo, phase = 'eval').load(model, None, None)
             model.to(device)
-    elif args.perf != "":
-        if osp.exists(osp.join(modelOutputPath, args.perf)):
-            model, _, _, epoch = Checkpointer(modelOutputPath, phase = 'train').load(model, None, None)
-            model.to(device)
-            bbox_perf, mask_perf = Checkpointer.perf_box, Checkpointer.perf_mask
     else:
         raise ValueError("No model checkpoint found")
 
@@ -213,7 +206,7 @@ def main(args):
                 }
                 pred = demo(**cfg)
                 outPath = osp.join(demoPath, f"demo_{idx}.png")
-                plotDemo(**pred, save=True, path=outPath)
+                plotDemo(**pred, coco = valSet.coco, save=True, path=outPath)
                 del pred
                 del cfg
     #* ----------------------------------------------------
@@ -226,7 +219,6 @@ if __name__ == "__main__":
     parser.add_argument("--train", action="store_true", default=False, help="Force Training of the model")
     parser.add_argument("--batch_size", type=int, default=1, help="Batch size for training")
     parser.add_argument("--demo", type=str, default="", help="Run a demo of inference on 3 random image from the validation set with the model checkpoint at the specified path")
-    parser.add_argument("--perf", type=str, default="", help="Plot the performance of the model checkpoint at the specified path")
     parser.add_argument("--eval", type=str, default="", help="Evaluate the model checkpoint at the specified path")
     parser.add_argument("--save", action="store_true", default=False, help="Save the demo images to the model directory")
     parser.add_argument("--resume", type=str, default="", help="Resume training from the specified model checkpoint path")
