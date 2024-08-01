@@ -25,7 +25,7 @@ def plotSample(dataset):
     boxes = target["boxes"].reshape(-1, 4)
     labels = target["labels"]
     labels = [coco.cats[label.item()]["name"] for label in labels]
-    img = draw_bounding_boxes(img, boxes, labels=labels, colors="red", width=7, font_size=30, font="Verdana.ttf")
+    img = draw_bounding_boxes(img, boxes, labels=labels, colors="red", width=7, font_size=15, font="Verdana.ttf")
     img = draw_segmentation_masks(img, targetMasks, alpha=0.3, colors="yellow")
     img = img.permute(1, 2, 0)
     plt.imshow(img)
@@ -43,7 +43,7 @@ def plotDemo(img, target, prediction, coco, save = False, path = None):
     labels = target["labels"]
     labels = [coco.cats[label.item()]["name"] for label in labels]
     image = draw_segmentation_masks(image, targetMasks, alpha=0.5, colors="green")
-    image = draw_bounding_boxes(image, target["boxes"], colors="green", width=1, labels=labels, font_size=10, font="Verdana.ttf")
+    image = draw_bounding_boxes(image, target["boxes"], colors="green", width=1, labels=labels, font_size=15, font="Verdana.ttf")
     plt.imshow(transforms.ToPILImage()(image), aspect='auto')
     plt.axis('off')
 
@@ -54,8 +54,9 @@ def plotDemo(img, target, prediction, coco, save = False, path = None):
     targetLabels = [coco.cats[label.item()]["name"] for label in targetLabels]
     predLabels = prediction["labels"]
     predLabels = [coco.cats[label.item()]["name"] for label in predLabels]
-    img = draw_bounding_boxes(img, target["boxes"], labels=targetLabels, colors="green", width=1, font_size=10, font="Verdana.ttf")
-    img = draw_bounding_boxes(img, prediction["boxes"], labels=predLabels, colors="red", width=1, font_size=10, font="Verdana.ttf")
+    predLabels = [f"{label} {score:.2f}" for label, score in zip(predLabels, prediction["scores"])]
+    img = draw_bounding_boxes(img, target["boxes"], labels=targetLabels, colors="green", width=1, font_size=15, font="Verdana.ttf")
+    img = draw_bounding_boxes(img, prediction["boxes"], labels=predLabels, colors="red", width=1, font_size=15, font="Verdana.ttf")
     img = draw_segmentation_masks(img.type(torch.uint8), masks, alpha=0.5, colors="red")
     plt.imshow(transforms.ToPILImage()(img), aspect='auto')
     plt.axis('off')
