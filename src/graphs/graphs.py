@@ -48,9 +48,9 @@ def plotDemo(img, target, prediction, coco, save=False, path=None):
                     text = f"{label}: {score:.2f}"
                 else:
                     text = label
-                (text_width, text_height), _ = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 1)
+                (text_width, text_height), _ = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 1, 1)
                 cv2.rectangle(image, (x1, y1 - text_height - 2), (x1 + text_width, y1), (0, 0, 0), -1)
-                cv2.putText(image, text, (x1, y1 - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 1)
+                cv2.putText(image, text, (x1, y1 - 2), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 255, 255), 1)
             cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
         return image
 
