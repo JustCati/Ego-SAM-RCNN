@@ -1,6 +1,7 @@
+import cv2
 import torch
+import numpy as np
 import matplotlib.pyplot as plt
-from torchvision.transforms import transforms
 from torchvision.utils import draw_segmentation_masks, draw_bounding_boxes
 
 
@@ -35,32 +36,57 @@ def plotSample(dataset):
 
 
 
-def plotDemo(img, target, prediction, coco, save = False, path = None):
-    plt.figure(figsize=(10, 10))
-    plt.subplot(1, 2, 1)
-    image = (img * 255).type(torch.uint8)
-    targetMasks = target["masks"].type(torch.bool).reshape(-1, img.shape[-2], img.shape[-1])
-    labels = target["labels"]
-    labels = [coco.cats[label.item()]["name"] for label in labels]
-    image = draw_segmentation_masks(image, targetMasks, alpha=0.5, colors="green")
-    image = draw_bounding_boxes(image, target["boxes"], colors="green", width=1, labels=labels, font_size=15, font="Verdana.ttf")
-    plt.imshow(transforms.ToPILImage()(image), aspect='auto')
-    plt.axis('off')
+def plotDemo(img, target, prediction, coco, save=False, path=None):
+    def draw_boxes(image, boxes, labels=None, scores=None, coco=None):
+        for i, box in enumerate(boxes):
+            x1, y1, x2, y2 = map(int, box)
+            if labels is not None:
+                class_id = labels[i].item()
+                label = coco.cats[class_id]['name']
+                if scores is not None:
+                    score = scores[i].item()
+                    text = f"{label}: {score:.2f}"
+                else:
+                    text = label
+                (text_width, text_height), _ = cv2.getTextSize(text, cv2.FONT_HERSHEY_SIMPLEX, 0.7, 1)
+                cv2.rectangle(image, (x1, y1 - text_height - 2), (x1 + text_width, y1), (0, 0, 0), -1)
+                cv2.putText(image, text, (x1, y1 - 2), cv2.FONT_HERSHEY_SIMPLEX, 0.7, (255, 255, 255), 1)
+            cv2.rectangle(image, (x1, y1), (x2, y2), (0, 255, 0), 2)
+        return image
 
-    plt.subplot(1, 2, 2)
-    img = (img * 255).type(torch.uint8)
-    masks = prediction["masks"].type(torch.bool).reshape(-1, img.shape[-2], img.shape[-1])
-    targetLabels = target["labels"]
-    targetLabels = [coco.cats[label.item()]["name"] for label in targetLabels]
-    predLabels = prediction["labels"]
-    predLabels = [coco.cats[label.item()]["name"] for label in predLabels]
-    predLabels = [f"{label} {score:.2f}" for label, score in zip(predLabels, prediction["scores"])]
-    img = draw_bounding_boxes(img, target["boxes"], labels=targetLabels, colors="green", width=1, font_size=15, font="Verdana.ttf")
-    img = draw_bounding_boxes(img, prediction["boxes"], labels=predLabels, colors="red", width=1, font_size=15, font="Verdana.ttf")
-    img = draw_segmentation_masks(img.type(torch.uint8), masks, alpha=0.5, colors="red")
-    plt.imshow(transforms.ToPILImage()(img), aspect='auto')
-    plt.axis('off')
+    def draw_masks(image, masks):
+        image = torch.tensor(image).permute(2, 0, 1)
+        masks = masks.type(torch.bool).reshape(-1, image.shape[-2], image.shape[-1])
+        image = draw_segmentation_masks(image, masks, alpha=0.5, colors="green")
+        return image.permute(1, 2, 0).cpu().numpy()
 
+    image_np = img.permute(1, 2, 0).cpu().numpy()
+    image_np = (image_np * 255).astype(np.uint8)
+
+    gt_image = image_np.copy()
+    pred_image = image_np.copy()
+
+    gt_boxes = target['boxes']
+    gt_labels = target['labels']
+    gt_image = draw_boxes(gt_image, gt_boxes, gt_labels, coco=coco)
+    gt_image = draw_masks(gt_image, target['masks'])
+
+    pred_boxes = prediction['boxes']
+    pred_labels = prediction['labels']
+    pred_scores = prediction['scores']
+    pred_image = draw_boxes(pred_image, pred_boxes, pred_labels, pred_scores, coco=coco)
+    pred_image = draw_masks(pred_image, prediction['masks'])
+
+    fig, axs = plt.subplots(1, 2, figsize=(20, 10))
+    axs[0].imshow(gt_image)
+    axs[0].set_title('Ground Truth')
+    axs[0].axis('off')
+
+    axs[1].imshow(pred_image)
+    axs[1].set_title('Prediction')
+    axs[1].axis('off')
+
+    plt.tight_layout()
     if save:
         plt.savefig(path)
         plt.close()
