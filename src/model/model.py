@@ -7,8 +7,10 @@ from torchvision.models.detection.faster_rcnn import FastRCNNPredictor
 
 
 
-def getModel(num_classes):
-    model = maskrcnn_resnet50_fpn_v2(weights = "DEFAULT", backbone_weights = "DEFAULT", box_score_thresh = 0.5)
+def getModel(num_classes, eval = None):
+    model = maskrcnn_resnet50_fpn_v2(weights = "DEFAULT",
+                                     backbone_weights = "DEFAULT", 
+                                     box_score_thresh = eval if eval is not None else 0.05)
 
     #* Change the number of output classes
     in_features_box = model.roi_heads.box_predictor.cls_score.in_features

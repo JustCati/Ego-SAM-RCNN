@@ -13,7 +13,7 @@ from src.dataset.create_masks import generate_masks
 from src.dataset.coco import unify_cocos, split_coco
 from src.utils.utils import get_device, fix_random_seed, worker_reset_seed
 
-from src.utils.demo import demo
+from src.utils.demo import demo, evaluate
 from src.dataset.dataloader import CocoDataset
 from src.graphs.graphs import plotSample, plotDemo
 from src.transform.transform import RandomGaussianBlur, GaussianNoise
@@ -125,12 +125,15 @@ def main(args):
     #* --------------- Train the model -----------------
 
     curr_epoch = 0
-    num_classes = valSet.get_num_classes()
+    BOX_THRESHOLD = 0.5
+    MASK_THRESHOLD = 0.5
     EPOCHS = args.epochs if args.epochs > 0 else 10
+
+    num_classes = valSet.get_num_classes()
     tb_writer = SummaryWriter(osp.join(modelOutputPath, "logs"))
 
     device = get_device()
-    model = getModel(num_classes)
+    model = getModel(num_classes) if args.train or args.resume or args.eval != "" else getModel(num_classes, eval = BOX_THRESHOLD)
     model.to(device)
 
     if args.train or args.resume != "":
@@ -160,8 +163,8 @@ def main(args):
         }
         train(cfg)
     elif args.eval != "":
-        if osp.exists(osp.join(modelOutputPath, args.eval)):
-            model, *_ = Checkpointer(modelOutputPath, phase = 'eval').load(model, None, None)
+        if osp.exists(args.eval):
+            model, *_ = Checkpointer(args.eval, phase = 'eval').load(model, None, None)
             model.to(device)
     elif args.demo != "":
         if osp.exists(args.demo):
@@ -171,9 +174,21 @@ def main(args):
     else:
         raise ValueError("No model checkpoint found")
 
+
+    #* ----------------- Evaluate and print results -----------------
+    
+    if args.eval:
+        print("\nEvaluating model")
+        cfg = {
+            "model" : model,
+            "dataloader" : valDataloader,
+            "device" : device
+        }
+        evaluate(**cfg)
+
+
     #* --------------- Plot inferenced example -----------------
     if args.demo:
-        MASK_THRESHOLD = 0.5
         if not args.save:
             for _ in range(3):
                 (img, target) = valSet[torch.randint(0, len(valSet), (1,))]
