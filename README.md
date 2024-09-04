@@ -1,4 +1,4 @@
-# Mask-RCNN with Segment Anything Model (SAM) for Object Detection and Segmentation
+# SAMMask - Object Detection and Segmentation with Mask-RCNN and Segment Anything Model (SAM) for Mask Generation
 
 ## Overview
 
